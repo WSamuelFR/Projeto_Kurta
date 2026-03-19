@@ -2,7 +2,6 @@ CREATE DATABASE kurta;
 
 use kurta;
 
-
 CREATE TABLE user (
  user_id INT AUTO_INCREMENT PRIMARY KEY,
  first_name VARCHAR(50) NOT NULL,
@@ -63,10 +62,13 @@ FOREIGN KEY (clan) REFERENCES clan(clan_id),
 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
-DESCRIBE user;
+DESCRIBE login;
 
 INSERT user (first_name, last_name, phone, email, birthdate) VALUES ('wesley', 'rodrigues', '83996312020', 'wesley@gmail.com', '2001/02/07');
 
-select * from user;
+select * from login JOIN user;
 
 ALTER TABLE user MODIFY COLUMN phone BIGINT;
+
+INSERT login (user, password, level_acess) VALUES ('1', 'wsfr9026', 'user');
+

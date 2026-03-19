@@ -66,9 +66,13 @@ DESCRIBE login;
 
 INSERT user (first_name, last_name, phone, email, birthdate) VALUES ('wesley', 'rodrigues', '83996312020', 'wesley@gmail.com', '2001/02/07');
 
-select * from login JOIN user;
+select * from login JOIN user WHERE l = login AND u = user;
 
 ALTER TABLE user MODIFY COLUMN phone BIGINT;
 
 INSERT login (user, password, level_acess) VALUES ('1', 'wsfr9026', 'user');
+
+SELECT user.email, login.password
+FROM user, login
+WHERE user.user_id = login.login_id;
 

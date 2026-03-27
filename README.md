@@ -153,5 +153,5 @@ Para manter e evoluir este projeto, recomendamos as seguintes ferramentas:
 
 ---
 <p align="center">
-  <i>Desenvolvido com excelência por <b>WSistemas (Wesley Samuel Ferreira Rodrigues)</b> via Antigravity Agent.</i>
+  <i>Desenvolvido com excelência por <b>WSistemas (Wesley Samuel Ferreira Rodrigues)</b></i>
 </p>

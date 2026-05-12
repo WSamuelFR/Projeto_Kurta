@@ -5,9 +5,9 @@ header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Max-Age: 3600");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
-require_once __DIR__ . '/../model/cadastroModel.php';
-require_once __DIR__ . '/../config/criptography.php';
-require_once __DIR__ . '/../config/email_verifier.php';
+require_once __DIR__ . '/../../model/cadastroModel.php';
+require_once __DIR__ . '/../../config/criptography.php';
+require_once __DIR__ . '/../../config/email_verifier.php';
 
 // Recebe os dados brutos via POST do JS (Fetch)
 $data = json_decode(file_get_contents("php://input"));

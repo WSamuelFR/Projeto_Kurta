@@ -1,0 +1,27 @@
+<script setup>
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+import NavBar from './components/NavBar.vue'
+import ToastProvider from './components/ToastProvider.vue'
+
+const route = useRoute()
+const showNavBar = computed(() => {
+  return !['login', 'register'].includes(route.name)
+})
+</script>
+
+<template>
+  <ToastProvider />
+  <NavBar v-if="showNavBar" />
+  <router-view></router-view>
+</template>
+
+<style>
+/* Estilos Globais */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #050810;
+  color: white;
+}
+</style>

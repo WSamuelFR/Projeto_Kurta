@@ -12,7 +12,7 @@ export const getProfile = async (req: Request, res: Response) => {
   }
 
   try {
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { user_id: targetId }
     });
 
@@ -108,7 +108,7 @@ export const updateProfile = async (req: Request, res: Response) => {
       updateData.wallpaper_pic = `assets/files/${files.wallpaper[0].filename}`;
     }
 
-    await prisma.user.update({
+    await prisma.users.update({
       where: { user_id: id },
       data: updateData
     });
@@ -139,7 +139,7 @@ export const getFriends = async (req: Request, res: Response) => {
       f.sender_id === userId ? f.receiver_id : f.sender_id
     );
 
-    const friends = await prisma.user.findMany({
+    const friends = await prisma.users.findMany({
       where: { user_id: { in: friendIds } }
     });
 

@@ -57,21 +57,32 @@ export const login = async (req: Request, res: Response) => {
 };
 
 export const register = async (req: Request, res: Response) => {
-  const { first_name, last_name, email, password } = req.body;
+  const { first_name, last_name, email, password, phone } = req.body;
 
   try {
+    // Verificação manual de e-mail existente
     const existingUser = await prisma.user.findFirst({ where: { email } });
     if (existingUser) {
-      return res.status(400).json({ status: 'error', message: 'E-mail já cadastrado.' });
+      return res.status(400).json({ status: 'error', message: 'Este e-mail já está cadastrado.' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Tratamento do telefone para BigInt (remove tudo que não for número)
+    let phoneDigits: bigint | null = null;
+    if (phone) {
+      const cleanedPhone = phone.replace(/\D/g, '');
+      if (cleanedPhone) {
+        phoneDigits = BigInt(cleanedPhone);
+      }
+    }
 
     const newUser = await prisma.user.create({
       data: {
         first_name,
         last_name,
         email,
+        phone: phoneDigits,
         login_login_userTouser: {
           create: {
             password: hashedPassword
@@ -81,8 +92,28 @@ export const register = async (req: Request, res: Response) => {
     });
 
     res.json({ status: 'success', message: 'Usuário cadastrado com sucesso!' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ status: 'error', message: 'Erro ao cadastrar usuário.' });
+  } catch (error: any) {
+    console.error('ERRO NO REGISTRO:', error);
+    
+    let message = 'Erro ao cadastrar usuário.';
+    
+    // Tratamento de erros específicos do Prisma (ex: Unique Constraint)
+    if (error.code === 'P2002') {
+      const target = error.meta?.target || '';
+      if (target.includes('email')) {
+        message = 'Este e-mail já está em uso.';
+      } else if (target.includes('phone')) {
+        message = 'Este telefone já está em uso.';
+      } else {
+        message = 'Alguns dados informados já constam no sistema.';
+      }
+      return res.status(400).json({ status: 'error', message });
+    }
+
+    res.status(500).json({ 
+      status: 'error', 
+      message,
+      detail: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };

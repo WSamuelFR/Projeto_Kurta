@@ -13,6 +13,18 @@ const alertType = ref('')
 const loading = ref(false)
 const router = useRouter()
 
+function formatPhone(value) {
+  if (!value) return value
+  const digits = value.replace(/\D/g, '')
+  if (digits.length <= 2) return digits
+  if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7, 11)}`
+}
+
+function handlePhoneInput(e) {
+  phone.value = formatPhone(e.target.value)
+}
+
 async function handleRegister() {
   if (!firstName.value || !email.value || !password.value) {
     showAlert('Nome, E-mail e Senha são obrigatórios.', 'error')
@@ -32,7 +44,7 @@ async function handleRegister() {
     })
 
     if (response.data.status === 'success') {
-      showAlert('Cadastro realizado com sucesso!', 'success')
+      showAlert(response.data.message || 'Cadastro realizado com sucesso!', 'success')
       setTimeout(() => {
         router.push('/login')
       }, 1500)
@@ -40,9 +52,10 @@ async function handleRegister() {
       showAlert(response.data.message || 'Erro ao realizar cadastro.', 'error')
     }
   } catch (error) {
-    const msg = error.response?.data?.message || 'E-mail já cadastrado ou erro no servidor.'
-    showAlert(msg, 'error')
     console.error('Register error:', error)
+    const serverMessage = error.response?.data?.message
+    const msg = serverMessage || 'Não foi possível completar o cadastro. Tente novamente mais tarde.'
+    showAlert(msg, 'error')
   } finally {
     loading.value = false
   }
@@ -79,7 +92,14 @@ function showAlert(message, type) {
 
         <div class="mb-3">
           <label class="form-label text-muted small fw-bold">Telefone</label>
-          <input type="tel" v-model="phone" class="form-control custom-input" placeholder="(11) 90000-0000">
+          <input 
+            type="tel" 
+            v-model="phone" 
+            @input="handlePhoneInput"
+            class="form-control custom-input" 
+            placeholder="(11) 90000-0000"
+            maxlength="15"
+          >
         </div>
 
         <div class="mb-3">

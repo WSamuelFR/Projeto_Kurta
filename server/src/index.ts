@@ -19,8 +19,19 @@ import fs from 'fs';
   return this.toString();
 };
 
+import prisma from './lib/prisma';
+
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Teste de conexão com o banco na inicialização
+console.log('[SERVER] Verificando conexão com o banco de dados...');
+prisma.$connect()
+  .then(() => console.log('[SERVER] Conexão com o banco de dados estabelecida com sucesso!'))
+  .catch((err) => {
+    console.error('[SERVER] ERRO CRÍTICO: Falha ao conectar ao banco de dados:', err.message);
+    process.exit(1); // Encerra o processo se não conseguir conectar
+  });
 
 app.use(cors());
 app.use(express.json());

@@ -24,7 +24,7 @@ export const addFriend = async (req: Request, res: Response) => {
     // Criar notificação
     await prisma.notification.create({
       data: {
-        user_id: receiver_idInt,
+        user_id: receiverIdInt,
         sender_id: senderIdInt,
         notif_type: 'friend_request',
         reference_id: friendship.friendship_id

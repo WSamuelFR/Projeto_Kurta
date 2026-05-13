@@ -1,6 +1,0 @@
-@echo off
-echo Iniciando Projeto Kurta v2 (Fullstack TS)...
-start cmd /k "npm run dev"
-start cmd /k "cd server && npm run dev"
-echo Servidores em inicializacao...
-pause

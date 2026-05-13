@@ -53,7 +53,11 @@ export const getGlobalFeed = async (req: Request, res: Response) => {
     }));
 
     // VOLTAR AO PADRÃO: Mais recentes primeiro
-    formattedFeelings.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    formattedFeelings.sort((a, b) => {
+      const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+      return dateB - dateA;
+    });
 
     res.json({ status: 'success', data: formattedFeelings });
   } catch (error: any) {
@@ -111,7 +115,7 @@ export const toggleLike = async (req: Request, res: Response) => {
 export const getUserFeelings = async (req: Request, res: Response) => {
   const { id } = req.params;
   const visitorId = parseInt(req.query.visitorId as string) || 0;
-  const u_id = parseInt(id);
+  const u_id = parseInt(id as string);
 
   if (isNaN(u_id)) {
     return res.status(400).json({ status: 'error', message: 'ID de usuário inválido.' });
@@ -167,7 +171,7 @@ export const getUserFeelings = async (req: Request, res: Response) => {
 export const getClanFeelings = async (req: Request, res: Response) => {
   const { id } = req.params;
   const visitorId = parseInt(req.query.visitorId as string) || 0;
-  const c_id = parseInt(id);
+  const c_id = parseInt(id as string);
 
   if (isNaN(c_id)) {
     return res.status(400).json({ status: 'error', message: 'ID de clã inválido.' });

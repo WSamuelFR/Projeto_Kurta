@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -25,7 +25,7 @@ model clan_member {
   user_id   Int
   role      String?   @default("aldeao")
   joined_at DateTime? @default(now())
-  user      user      @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+  user      users      @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
   clan      clan      @relation(fields: [clan_id], references: [clan_id], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([clan_id, user_id], map: "sqlite_autoindex_clan_member_1")
@@ -39,7 +39,7 @@ model coments {
   created_at                       DateTime? @default(now())
   parent_id                        Int?
   feeling_coments_feelingTofeeling feeling   @relation("coments_feelingTofeeling", fields: [feeling], references: [feeling_id], onDelete: Cascade, onUpdate: NoAction)
-  user_coments_userTouser          user      @relation("coments_userTouser", fields: [user], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  user_coments_userTouser          users      @relation("coments_userTouser", fields: [user], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
   coments                          coments?  @relation("comentsTocoments", fields: [parent_id], references: [coment_id], onDelete: Cascade, onUpdate: NoAction)
   other_coments                    coments[] @relation("comentsTocoments")
 }
@@ -53,7 +53,7 @@ model feeling {
   created_at                       DateTime? @default(now())
   coments_coments_feelingTofeeling coments[] @relation("coments_feelingTofeeling")
   clan                             clan?     @relation(fields: [cla_id], references: [clan_id], onDelete: Cascade, onUpdate: NoAction)
-  user_feeling_userTouser          user      @relation("feeling_userTouser", fields: [user], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  user_feeling_userTouser          users      @relation("feeling_userTouser", fields: [user], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
   likes                            likes[]
   share_share_feelingTofeeling     share[]   @relation("share_feelingTofeeling")
 }
@@ -64,8 +64,8 @@ model friendship {
   receiver_id                       Int
   status                            String?   @default("pending")
   created_at                        DateTime? @default(now())
-  user_friendship_receiver_idTouser user      @relation("friendship_receiver_idTouser", fields: [receiver_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
-  user_friendship_sender_idTouser   user      @relation("friendship_sender_idTouser", fields: [sender_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+  user_friendship_receiver_idTouser users      @relation("friendship_receiver_idTouser", fields: [receiver_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+  user_friendship_sender_idTouser   users      @relation("friendship_sender_idTouser", fields: [sender_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([sender_id, receiver_id], map: "sqlite_autoindex_friendship_1")
 }
@@ -76,7 +76,7 @@ model likes {
   feeling_id Int
   created_at DateTime? @default(now())
   feeling    feeling   @relation(fields: [feeling_id], references: [feeling_id], onDelete: Cascade, onUpdate: NoAction)
-  user       user      @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+  user       users      @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([user_id, feeling_id], map: "sqlite_autoindex_likes_1")
 }
@@ -87,7 +87,7 @@ model login {
   password              String
   level_acess           String?   @default("user")
   created_at            DateTime? @default(now())
-  user_login_userTouser user      @relation("login_userTouser", fields: [user], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  user_login_userTouser users      @relation("login_userTouser", fields: [user], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model notification {
@@ -98,8 +98,8 @@ model notification {
   reference_id                      Int?
   is_read                           Boolean?  @default(false)
   created_at                        DateTime? @default(now())
-  user_notification_sender_idTouser user      @relation("notification_sender_idTouser", fields: [sender_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
-  user_notification_user_idTouser   user      @relation("notification_user_idTouser", fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+  user_notification_sender_idTouser users      @relation("notification_sender_idTouser", fields: [sender_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+  user_notification_user_idTouser   users      @relation("notification_user_idTouser", fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
 }
 
 model share {
@@ -111,10 +111,10 @@ model share {
   created_at                     DateTime? @default(now())
   clan_share_clanToclan          clan      @relation("share_clanToclan", fields: [clan], references: [clan_id], onDelete: Cascade, onUpdate: NoAction)
   feeling_share_feelingTofeeling feeling   @relation("share_feelingTofeeling", fields: [feeling], references: [feeling_id], onDelete: Cascade, onUpdate: NoAction)
-  user_share_userTouser          user      @relation("share_userTouser", fields: [user], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  user_share_userTouser          users      @relation("share_userTouser", fields: [user], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model user {
+model users {
   user_id                                   Int            @id @default(autoincrement())
   first_name                                String
   last_name                                 String?
@@ -134,4 +134,6 @@ model user {
   notification_notification_sender_idTouser notification[] @relation("notification_sender_idTouser")
   notification_notification_user_idTouser   notification[] @relation("notification_user_idTouser")
   share_share_userTouser                    share[]        @relation("share_userTouser")
+
+  @@map("users")
 }

@@ -1,7 +1,7 @@
 import  dotenv from 'dotenv';
 dotenv.config();
 
-import express from 'express';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import authRoutes from './routes/authRoutes';
 import feelingRoutes from './routes/feelingRoutes';
@@ -58,7 +58,7 @@ app.use('/api/comments', commentRoutes);
 app.use('/api/social', socialRoutes);
 
 // Catch-all para SPA: Usa Regex para capturar tudo (compatível com Express 5)
-app.get(/.*/, (req, res) => {
+app.get(/.*/, (req: Request, res: Response) => {
   if (req.path.startsWith('/api')) {
     return res.status(404).json({ error: 'Endpoint não encontrado' });
   }

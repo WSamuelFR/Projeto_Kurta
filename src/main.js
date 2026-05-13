@@ -1,5 +1,8 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+
+// Garantir que a aplicação sempre inicie na tela de login limpando o token na carga inicial
+localStorage.removeItem('fellit_token');
 import './style.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'

@@ -114,7 +114,7 @@ export const joinClan = async (req: Request, res: Response) => {
 
 export const getClanById = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const c_id = parseInt(id);
+  const c_id = parseInt(id as string);
 
   if (isNaN(c_id)) {
     return res.status(400).json({ status: 'error', message: 'ID do clã inválido.' });
@@ -140,7 +140,7 @@ export const getClanById = async (req: Request, res: Response) => {
 export const getClanMembers = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { user_id } = req.query;
-  const c_id = parseInt(id);
+  const c_id = parseInt(id as string);
 
   if (isNaN(c_id)) {
     return res.status(400).json({ status: 'error', message: 'ID do clã inválido.' });

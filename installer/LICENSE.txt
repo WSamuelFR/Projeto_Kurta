@@ -1,0 +1,8 @@
+Este software é fornecido "como está", sem garantias de qualquer tipo.
+Ao instalar o Fell.it, você concorda em utilizar a plataforma de forma responsável.
+
+1. Privacidade: Seus dados locais são armazenados em um banco de dados SQLite.
+2. Uso: O software é destinado a fins de demonstração e uso pessoal/comunitário.
+3. Responsabilidade: O desenvolvedor não se responsabiliza por perda de dados ou mau uso da ferramenta.
+
+Fell.it v2.0.0

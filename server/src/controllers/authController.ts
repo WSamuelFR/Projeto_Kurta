@@ -8,7 +8,7 @@ export const login = async (req: Request, res: Response) => {
 
   try {
     console.log('Tentativa de login para:', email);
-    const user = await prisma.user.findFirst({
+    const user = await prisma.users.findFirst({
       where: { email },
       include: { login_login_userTouser: true }
     });
@@ -61,7 +61,7 @@ export const register = async (req: Request, res: Response) => {
 
   try {
     // Verificação manual de e-mail existente
-    const existingUser = await prisma.user.findFirst({ where: { email } });
+    const existingUser = await prisma.users.findFirst({ where: { email } });
     if (existingUser) {
       return res.status(400).json({ status: 'error', message: 'Este e-mail já está cadastrado.' });
     }
@@ -77,7 +77,7 @@ export const register = async (req: Request, res: Response) => {
       }
     }
 
-    const newUser = await prisma.user.create({
+    const newUser = await prisma.users.create({
       data: {
         first_name,
         last_name,
@@ -93,11 +93,10 @@ export const register = async (req: Request, res: Response) => {
 
     res.json({ status: 'success', message: 'Usuário cadastrado com sucesso!' });
   } catch (error: any) {
-    console.error('ERRO NO REGISTRO:', error);
+    console.error('Erro no registro:', error);
     
     let message = 'Erro ao cadastrar usuário.';
     
-    // Tratamento de erros específicos do Prisma (ex: Unique Constraint)
     if (error.code === 'P2002') {
       const target = error.meta?.target || '';
       if (target.includes('email')) {

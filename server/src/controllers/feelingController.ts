@@ -23,7 +23,7 @@ export const getGlobalFeed = async (req: Request, res: Response) => {
 
     // 2. Buscar dados auxiliares em massa
     const [users, allLikes, allComments, myLikes] = await Promise.all([
-      prisma.user.findMany({ where: { user_id: { in: userIds } } }),
+      prisma.users.findMany({ where: { user_id: { in: userIds } } }),
       prisma.likes.groupBy({ by: ['feeling_id'], _count: true, where: { feeling_id: { in: feelingIds } } }),
       prisma.coments.groupBy({ by: ['feeling'], _count: true, where: { feeling: { in: feelingIds } } }),
       prisma.likes.findMany({ where: { feeling_id: { in: feelingIds }, user_id: visitorId } })
@@ -134,7 +134,7 @@ export const getUserFeelings = async (req: Request, res: Response) => {
 
     // 2. Buscar dados auxiliares em massa
     const [userData, allLikes, allComments, myLikes] = await Promise.all([
-      prisma.user.findUnique({ where: { user_id: u_id } }),
+      prisma.users.findUnique({ where: { user_id: u_id } }),
       prisma.likes.groupBy({ by: ['feeling_id'], _count: true, where: { feeling_id: { in: feelingIds } } }),
       prisma.coments.groupBy({ by: ['feeling'], _count: true, where: { feeling: { in: feelingIds } } }),
       prisma.likes.findMany({ where: { feeling_id: { in: feelingIds }, user_id: visitorId } })
@@ -191,7 +191,7 @@ export const getClanFeelings = async (req: Request, res: Response) => {
 
     // 2. Buscar dados auxiliares em massa
     const [users, allLikes, allComments, myLikes] = await Promise.all([
-      prisma.user.findMany({ where: { user_id: { in: userIds } } }),
+      prisma.users.findMany({ where: { user_id: { in: userIds } } }),
       prisma.likes.groupBy({ by: ['feeling_id'], _count: true, where: { feeling_id: { in: feelingIds } } }),
       prisma.coments.groupBy({ by: ['feeling'], _count: true, where: { feeling: { in: feelingIds } } }),
       prisma.likes.findMany({ where: { feeling_id: { in: feelingIds }, user_id: visitorId } })
@@ -236,7 +236,7 @@ export const getTrendingFeelings = async (req: Request, res: Response) => {
     });
 
     const formatted = await Promise.all(feelings.map(async (f) => {
-      const userData = await prisma.user.findUnique({ where: { user_id: f.user } });
+      const userData = await prisma.users.findUnique({ where: { user_id: f.user } });
       const likesCount = await prisma.likes.count({ where: { feeling_id: f.feeling_id } });
       const commentsCount = await prisma.coments.count({ where: { feeling: f.feeling_id } });
 

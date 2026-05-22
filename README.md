@@ -1,6 +1,10 @@
 # fell.it 🌐
 
+[![Live on Render](https://img.shields.io/badge/Live_on-Render-46E3B7?style=for-the-badge&logo=render)](https://fell-it-app.onrender.com)
+
 > **Rede social de sentimentos** — compartilhe o que você sente, conecte-se com pessoas e forme clãs com quem pensa igual a você.
+
+🌍 **Acesse o projeto online:** [https://fell-it-app.onrender.com](https://fell-it-app.onrender.com)
 
 ---
 
@@ -66,9 +70,11 @@ O projeto é **fullstack**, com frontend SPA em Vue 3 + Vite e backend REST API 
 Projeto_fell.it/
 │
 ├── kurta.db                    # Banco de dados SQLite (produção)
-├── start_all.bat               # Script para iniciar frontend + backend juntos
+├── launcher.bat                # Script para iniciar o backend e servir o frontend compilado
+├── start_app.vbs               # Script silencioso para chamar o launcher.bat
+├── installer/                  # Arquivos e scripts para geração do instalador final
 ├── vite.config.js              # Configuração do Vite (proxy para /api → porta 3000)
-├── package.json                # Dependências do frontend
+├── package.json                # Dependências do frontend e scripts de build globais
 │
 ├── src/                        # Frontend Vue 3
 │   ├── main.js                 # Entry point: cria app, registra Pinia e Router
@@ -387,14 +393,22 @@ npx prisma generate
 
 ### 4. Iniciar o projeto
 
-#### Opção A — Script automático (Windows)
-```bat
-# Na raiz do projeto, execute:
-start_all.bat
-```
-> Abre dois terminais: um para o Vite (frontend) e um para o Express (backend).
+#### Modo Produção (Recomendado)
 
-#### Opção B — Manual (dois terminais)
+O backend Express serve os arquivos estáticos do frontend compilado (`dist/`). Para preparar e iniciar o ambiente de produção:
+
+```bash
+# Na raiz do projeto, instale dependências, faça o build e gere o Prisma:
+npm run build:full
+```
+
+```bat
+# Execute o script launcher.bat para subir o servidor e abrir no navegador:
+launcher.bat
+```
+> Alternativamente, você pode usar `start_app.vbs` para iniciar sem manter uma janela de console do Windows aberta. A aplicação será aberta automaticamente em: **http://localhost:3000**
+
+#### Modo Desenvolvimento (Hot-reload)
 
 **Terminal 1 — Frontend:**
 ```bash
@@ -407,12 +421,8 @@ npm run dev
 ```bash
 cd server
 npm run dev
-# Disponível em: http://localhost:3000
+# Disponível em: http://localhost:3000 (Apenas API)
 ```
-
-### 5. Acessar a aplicação
-
-Abra o navegador em: **http://localhost:5173**
 
 ---
 

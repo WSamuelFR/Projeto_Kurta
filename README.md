@@ -341,13 +341,6 @@ Base URL: `http://localhost:3000`
 
 ## Variáveis de Ambiente
 
-Arquivo: `server/.env`
-
-```
-```
-
-> ⚠️ **Nunca versione o arquivo `.env` em repositórios públicos.** Adicione-o ao `.gitignore`.
-
 ---
 
 ## Como Iniciar o Projeto

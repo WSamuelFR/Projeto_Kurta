@@ -343,15 +343,7 @@ Base URL: `http://localhost:3000`
 
 Arquivo: `server/.env`
 
-```env
-# Caminho absoluto para o banco de dados SQLite
-DATABASE_URL="file:D:/Meu_conteudo/Projeto_fell.it/kurta.db"
-
-# Chave secreta para assinatura dos tokens JWT
-JWT_SECRET="kurta_secret_2026_empire"
-
-# Porta do servidor Express
-PORT=3000
+```
 ```
 
 > ⚠️ **Nunca versione o arquivo `.env` em repositórios públicos.** Adicione-o ao `.gitignore`.

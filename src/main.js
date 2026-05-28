@@ -1,8 +1,6 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 
-// Garantir que a aplicação sempre inicie na tela de login limpando o token na carga inicial
-localStorage.removeItem('fellit_token');
 import './style.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
@@ -18,6 +16,19 @@ axios.interceptors.request.use(config => {
   }
   return config
 })
+
+// Interceptador para limpar sessão e deslogar caso o token no backend seja inválido (erro 401)
+axios.interceptors.response.use(
+  response => response,
+  error => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('fellit_token')
+      localStorage.removeItem('fellit_user')
+      router.push('/login')
+    }
+    return Promise.reject(error)
+  }
+)
 
 const app = createApp(App)
 const pinia = createPinia()

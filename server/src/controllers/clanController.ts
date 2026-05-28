@@ -3,7 +3,11 @@ import prisma from '../lib/prisma';
 
 export const getAllClans = async (req: Request, res: Response) => {
   const { user_id, filter } = req.query;
-  const u_id = user_id ? parseInt(user_id as string) : null;
+  let u_id = user_id ? parseInt(user_id as string) : null;
+
+  if (filter === 'meus-clas') {
+    u_id = (req as any).user.userId;
+  }
 
   try {
     const where: any = {};
@@ -46,6 +50,10 @@ export const createClan = async (req: Request, res: Response) => {
     return res.status(400).json({ status: 'error', message: 'Nome do clã e ID de usuário são obrigatórios.' });
   }
 
+  if (u_id !== (req as any).user.userId) {
+    return res.status(403).json({ status: 'error', message: 'Não autorizado.' });
+  }
+
   try {
     const clanData: any = {
       name_clan,
@@ -83,6 +91,10 @@ export const joinClan = async (req: Request, res: Response) => {
 
   if (isNaN(c_id) || isNaN(u_id)) {
     return res.status(400).json({ status: 'error', message: 'Dados de identificação inválidos.' });
+  }
+
+  if (u_id !== (req as any).user.userId) {
+    return res.status(403).json({ status: 'error', message: 'Não autorizado.' });
   }
 
   try {
@@ -162,13 +174,9 @@ export const getClanMembers = async (req: Request, res: Response) => {
     });
 
     let viewerRole = null;
-    if (user_id) {
-      const u_id = parseInt(user_id as string);
-      if (!isNaN(u_id)) {
-        const viewer = members.find(m => m.user_id === u_id);
-        if (viewer) viewerRole = viewer.role;
-      }
-    }
+    const authenticatedUserId = (req as any).user.userId;
+    const viewer = members.find(m => m.user_id === authenticatedUserId);
+    if (viewer) viewerRole = viewer.role;
 
     const formattedMembers = members.map(m => ({
       ...m.user,
@@ -189,6 +197,14 @@ export const updateClan = async (req: Request, res: Response) => {
   if (isNaN(c_id)) return res.status(400).json({ status: 'error', message: 'ID do clã inválido.' });
 
   try {
+    const authenticatedUserId = (req as any).user.userId;
+    const member = await prisma.clan_member.findFirst({
+      where: { clan_id: c_id, user_id: authenticatedUserId }
+    });
+    if (!member || member.role !== 'rei') {
+      return res.status(403).json({ status: 'error', message: 'Apenas o Rei do clã pode atualizar os dados.' });
+    }
+
     const updated = await prisma.clan.update({
       where: { clan_id: c_id },
       data: { name_clan, description, visibility }
@@ -205,6 +221,14 @@ export const changeRole = async (req: Request, res: Response) => {
   const u_id = parseInt(target_user_id);
 
   try {
+    const authenticatedUserId = (req as any).user.userId;
+    const member = await prisma.clan_member.findFirst({
+      where: { clan_id: c_id, user_id: authenticatedUserId }
+    });
+    if (!member || member.role !== 'rei') {
+      return res.status(403).json({ status: 'error', message: 'Apenas o Rei do clã pode alterar cargos.' });
+    }
+
     await prisma.clan_member.updateMany({
       where: { clan_id: c_id, user_id: u_id },
       data: { role: new_role }
@@ -221,6 +245,16 @@ export const removeMember = async (req: Request, res: Response) => {
   const u_id = parseInt(target_user_id);
 
   try {
+    const authenticatedUserId = (req as any).user.userId;
+    if (u_id !== authenticatedUserId) {
+      const member = await prisma.clan_member.findFirst({
+        where: { clan_id: c_id, user_id: authenticatedUserId }
+      });
+      if (!member || member.role !== 'rei') {
+        return res.status(403).json({ status: 'error', message: 'Apenas o Rei do clã pode remover membros.' });
+      }
+    }
+
     await prisma.clan_member.deleteMany({
       where: { clan_id: c_id, user_id: u_id }
     });

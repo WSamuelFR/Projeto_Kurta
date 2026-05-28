@@ -68,148 +68,284 @@ function showAlert(message, type) {
 </script>
 
 <template>
-  <div class="login-container">
-    <div class="blob-1"></div>
-    <div class="blob-2"></div>
+  <div class="premium-login">
+    <!-- Efeitos de Fundo Dinâmicos -->
+    <div class="blob-container">
+      <div class="blob blob-purple"></div>
+      <div class="blob blob-blue"></div>
+      <div class="blob blob-pink"></div>
+    </div>
 
-    <div class="glass-card">
-      <div class="logo-area mb-4">
-        <h1>feel.it</h1>
-        <p>Crie sua nova conta abaixo</p>
-      </div>
-
-      <form @submit.prevent="handleRegister" class="login-form">
-        <div class="row mb-3">
-          <div class="col-6">
-            <label class="form-label text-muted small fw-bold">Primeiro Nome</label>
-            <input type="text" v-model="firstName" class="form-control custom-input" placeholder="Ex: Lucas" required>
+    <div class="content-wrapper animate__animated animate__zoomIn">
+      <div class="glass-container">
+        <div class="branding text-center mb-4">
+          <div class="logo-icon mb-2">
+            <i class="bi bi-heart-pulse-fill"></i>
           </div>
-          <div class="col-6">
-            <label class="form-label text-muted small fw-bold">Sobrenome</label>
-            <input type="text" v-model="lastName" class="form-control custom-input" placeholder="Ex: Silva">
+          <h1 class="brand-name">feel.it</h1>
+          <p class="brand-tagline">Crie sua nova conta abaixo</p>
+        </div>
+
+        <form @submit.prevent="handleRegister" class="modern-form">
+          <div class="row mb-4">
+            <div class="col-6">
+              <div class="input-group-modern">
+                <label>Primeiro Nome</label>
+                <div class="input-wrapper">
+                  <i class="bi bi-person"></i>
+                  <input type="text" v-model="firstName" placeholder="Ex: Lucas" required>
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="input-group-modern">
+                <label>Sobrenome</label>
+                <div class="input-wrapper">
+                  <i class="bi bi-person"></i>
+                  <input type="text" v-model="lastName" placeholder="Ex: Silva">
+                </div>
+              </div>
+            </div>
           </div>
+
+          <div class="input-group-modern mb-4">
+            <label>Telefone</label>
+            <div class="input-wrapper">
+              <i class="bi bi-telephone"></i>
+              <input 
+                type="tel" 
+                v-model="phone" 
+                @input="handlePhoneInput"
+                placeholder="(11) 90000-0000"
+                maxlength="15"
+              >
+            </div>
+          </div>
+
+          <div class="input-group-modern mb-4">
+            <label>E-mail</label>
+            <div class="input-wrapper">
+              <i class="bi bi-envelope"></i>
+              <input type="email" v-model="email" placeholder="seu@email.com" required>
+            </div>
+          </div>
+
+          <div class="input-group-modern mb-4">
+            <label>Crie uma Senha</label>
+            <div class="input-wrapper">
+              <i class="bi bi-lock"></i>
+              <input type="password" v-model="password" placeholder="••••••••" required>
+            </div>
+          </div>
+
+          <div v-if="alertMessage" :class="['modern-alert', alertType]">
+             <i :class="alertType === 'error' ? 'bi bi-exclamation-circle' : 'bi bi-check-circle'"></i>
+             {{ alertMessage }}
+          </div>
+
+          <button type="submit" class="btn-premium w-100" :disabled="loading">
+            <span v-if="!loading">Inscrever-se</span>
+            <span v-else class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          </button>
+        </form>
+
+        <div class="footer-action mt-4 text-center">
+          <p class="text-white-50 small">
+            Já possui uma conta? 
+            <router-link to="/login" class="signup-link">Faça Login</router-link>
+          </p>
         </div>
-
-        <div class="mb-3">
-          <label class="form-label text-muted small fw-bold">Telefone</label>
-          <input 
-            type="tel" 
-            v-model="phone" 
-            @input="handlePhoneInput"
-            class="form-control custom-input" 
-            placeholder="(11) 90000-0000"
-            maxlength="15"
-          >
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label text-muted small fw-bold">E-mail</label>
-          <input type="email" v-model="email" class="form-control custom-input" placeholder="seu@email.com" required>
-        </div>
-
-        <div class="mb-4">
-          <label class="form-label text-muted small fw-bold">Crie uma Senha</label>
-          <input type="password" v-model="password" class="form-control custom-input" placeholder="••••••••" required>
-        </div>
-
-        <div v-if="alertMessage" :class="['alert-box', alertType === 'error' ? 'alert-error' : 'alert-success']">
-          {{ alertMessage }}
-        </div>
-
-        <button type="submit" class="btn btn-primary-custom w-100 py-2 fw-bold" :disabled="loading">
-          <span v-if="!loading">Inscrever-se</span>
-          <span v-else class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        </button>
-      </form>
-
-      <div class="register-area mt-4 text-center">
-        <p class="text-muted small">
-          Já possui uma conta? 
-          <router-link to="/login" class="fw-bold text-primary-custom">Faça Login</router-link>
-        </p>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-/* Reaproveitando os estilos base do LoginView */
-.login-container {
-    position: relative;
-    width: 100%;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #0f172a;
-    overflow: hidden;
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
+
+.premium-login {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #050810;
+  font-family: 'Outfit', sans-serif;
+  overflow: hidden;
+  padding: 2rem 1rem;
 }
 
-.blob-1, .blob-2 {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.6;
-    animation: float 10s ease-in-out infinite alternate;
+/* Blobs Animados */
+.blob-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
 }
 
-.blob-1 { width: 400px; height: 400px; background: #4f46e5; top: -10%; left: -10%; }
-.blob-2 { width: 300px; height: 300px; background: #ec4899; bottom: -10%; right: -5%; animation-delay: -5s; }
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.5;
+  animation: float 20s infinite alternate;
+}
+
+.blob-purple {
+  width: 500px;
+  height: 500px;
+  background: #7c3aed;
+  top: -10%;
+  right: -5%;
+}
+
+.blob-blue {
+  width: 400px;
+  height: 400px;
+  background: #2563eb;
+  bottom: -10%;
+  left: -5%;
+  animation-delay: -5s;
+}
+
+.blob-pink {
+  width: 300px;
+  height: 300px;
+  background: #db2777;
+  top: 40%;
+  left: 20%;
+  animation-delay: -10s;
+}
 
 @keyframes float {
-    0% { transform: translate(0, 0) scale(1); }
-    100% { transform: translate(50px, 50px) scale(1.1); }
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(100px, 50px) scale(1.2); }
 }
 
-.glass-card {
-    background: rgba(30, 41, 59, 0.7);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 24px;
-    padding: 2.5rem;
-    width: 100%;
-    max-width: 480px;
-    z-index: 1;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    animation: slideUp 0.8s forwards;
+/* Glassmorphism Card */
+.glass-container {
+  position: relative;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 32px;
+  padding: 3rem 2.5rem;
+  width: 100%;
+  max-width: 480px;
+  z-index: 1;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
 }
 
-@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-.logo-area h1 {
-    font-size: 2.2rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, #60a5fa, #c084fc);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 0.2rem;
+.logo-icon {
+  font-size: 2.2rem;
+  color: #60a5fa;
+  filter: drop-shadow(0 0 10px rgba(96, 165, 250, 0.5));
 }
 
-.custom-input {
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: #f8fafc;
-    border-radius: 10px;
+.brand-name {
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -2px;
+  margin-bottom: 0;
 }
 
-.custom-input:focus {
-    background: rgba(15, 23, 42, 0.8);
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-    color: white;
+.brand-tagline {
+  color: #94a3b8;
+  font-weight: 300;
 }
 
-.btn-primary-custom {
-    background: linear-gradient(to right, #6366f1, #4f46e5);
-    border: none;
-    color: white;
+/* Form Styling */
+.input-group-modern label {
+  display: block;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  padding-left: 5px;
 }
 
-.btn-primary-custom:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4); color: white; }
-.text-primary-custom { color: #6366f1; }
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
 
-.alert-box { padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.875rem; text-align: center; }
-.alert-error { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #fca5a5; }
-.alert-success { background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.2); color: #86efac; }
+.input-wrapper i {
+  position: absolute;
+  left: 15px;
+  color: #64748b;
+  font-size: 1.1rem;
+}
+
+.input-wrapper input {
+  width: 100%;
+  padding: 14px 14px 14px 45px;
+  background: rgba(2, 6, 23, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 14px;
+  color: white;
+  transition: all 0.3s;
+}
+
+.input-wrapper input:focus {
+  outline: none;
+  border-color: #6366f1;
+  background: rgba(2, 6, 23, 0.6);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.forgot-link, .signup-link {
+  color: #6366f1;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s;
+}
+
+.signup-link:hover { color: #818cf8; text-decoration: underline; }
+
+.btn-premium {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  border: none;
+  border-radius: 16px;
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+  transition: all 0.3s;
+  box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.5);
+}
+
+.btn-premium:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 25px -5px rgba(79, 70, 229, 0.6);
+}
+
+.btn-premium:active { transform: translateY(0); }
+
+/* Alerts */
+.modern-alert {
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modern-alert.error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+}
+
+.modern-alert.success {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  color: #86efac;
+}
 </style>

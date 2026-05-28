@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import prisma from '../lib/prisma';
 
 export const getGlobalFeed = async (req: Request, res: Response) => {
-  const visitorId = parseInt(req.query.visitorId as string) || 0;
+  const visitorId = (req as any).user?.userId || 0;
 
   try {
     // 1. Buscar sentimentos
@@ -74,6 +74,10 @@ export const createFeeling = async (req: Request, res: Response) => {
     return res.status(400).json({ status: 'error', message: 'Texto do sentimento e ID de usuário são obrigatórios.' });
   }
 
+  if (u_id !== (req as any).user.userId) {
+    return res.status(403).json({ status: 'error', message: 'Não autorizado.' });
+  }
+
   try {
     const newFeeling = await prisma.feeling.create({
       data: {
@@ -95,6 +99,10 @@ export const toggleLike = async (req: Request, res: Response) => {
   const f_id = parseInt(feeling_id);
   const u_id = parseInt(user_id);
 
+  if (u_id !== (req as any).user.userId) {
+    return res.status(403).json({ status: 'error', message: 'Não autorizado.' });
+  }
+
   try {
     const existingLike = await prisma.likes.findFirst({
       where: { feeling_id: f_id, user_id: u_id }
@@ -114,7 +122,7 @@ export const toggleLike = async (req: Request, res: Response) => {
 
 export const getUserFeelings = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const visitorId = parseInt(req.query.visitorId as string) || 0;
+  const visitorId = (req as any).user?.userId || 0;
   const u_id = parseInt(id as string);
 
   if (isNaN(u_id)) {
@@ -170,7 +178,7 @@ export const getUserFeelings = async (req: Request, res: Response) => {
 
 export const getClanFeelings = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const visitorId = parseInt(req.query.visitorId as string) || 0;
+  const visitorId = (req as any).user?.userId || 0;
   const c_id = parseInt(id as string);
 
   if (isNaN(c_id)) {

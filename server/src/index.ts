@@ -10,6 +10,7 @@ import profileRoutes from './routes/profileRoutes';
 import searchRoutes from './routes/searchRoutes';
 import commentRoutes from './routes/commentRoutes';
 import socialRoutes from './routes/socialRoutes';
+import { authMiddleware } from './middlewares/authMiddleware';
 
 import path from 'path';
 import fs from 'fs';
@@ -50,12 +51,12 @@ app.use(express.static(distPath));
 
 // Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/feelings', feelingRoutes);
-app.use('/api/clans', clanRoutes);
-app.use('/api/profile', profileRoutes);
-app.use('/api/search', searchRoutes);
-app.use('/api/comments', commentRoutes);
-app.use('/api/social', socialRoutes);
+app.use('/api/feelings', authMiddleware, feelingRoutes);
+app.use('/api/clans', authMiddleware, clanRoutes);
+app.use('/api/profile', authMiddleware, profileRoutes);
+app.use('/api/search', authMiddleware, searchRoutes);
+app.use('/api/comments', authMiddleware, commentRoutes);
+app.use('/api/social', authMiddleware, socialRoutes);
 
 // Catch-all para SPA: Usa Regex para capturar tudo (compatível com Express 5)
 app.get(/.*/, (req: Request, res: Response) => {

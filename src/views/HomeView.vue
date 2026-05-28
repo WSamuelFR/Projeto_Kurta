@@ -12,6 +12,9 @@ const posting = ref(false)
 const trending = ref([])
 const user = ref(JSON.parse(localStorage.getItem('fellit_user') || '{}'))
 
+// Controle de abas no celular
+const activeMobileTab = ref('feed') // 'feed' ou 'trending'
+
 onMounted(() => {
   if (!user.value.id) {
     router.push('/login')
@@ -117,60 +120,103 @@ function avatar_url(name) {
         </div>
 
         <!-- Feed Center -->
-        <div class="col-lg-6">
-          <!-- Create Post -->
-          <div class="glass-card p-4 mb-4 animate__animated animate__fadeInDown">
-            <div class="d-flex gap-3">
-              <img :src="avatar_url(user.first_name + (user.last_name ? ' ' + user.last_name : ''))" class="avatar-xs" alt="User">
-              <div class="flex-grow-1">
-                <textarea 
-                  v-model="newFeeling" 
-                  class="premium-textarea" 
-                  rows="3" 
-                  placeholder="O que você está sentindo agora?"
-                ></textarea>
-                <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top border-white-50">
-                  <div class="d-flex gap-2 text-muted">
-                    <button class="btn-icon"><i class="bi bi-image"></i></button>
-                    <button class="btn-icon"><i class="bi bi-emoji-smile"></i></button>
+        <div class="col-lg-6 col-12">
+          <!-- Tabs para Mobile -->
+          <div class="mobile-tabs-container d-lg-none d-flex mb-4">
+            <button 
+              class="mobile-tab-btn" 
+              :class="{ active: activeMobileTab === 'feed' }" 
+              @click="activeMobileTab = 'feed'"
+            >
+              <i class="bi bi-chat-quote-fill me-2"></i>Recentes
+            </button>
+            <button 
+              class="mobile-tab-btn" 
+              :class="{ active: activeMobileTab === 'trending' }" 
+              @click="activeMobileTab = 'trending'"
+            >
+              <i class="bi bi-lightning-charge-fill me-2"></i>Momento
+            </button>
+          </div>
+
+          <!-- Feed principal (Visível no desktop ou na aba correspondente do celular) -->
+          <div :class="{ 'd-none d-lg-block': activeMobileTab !== 'feed' }">
+            <!-- Create Post -->
+            <div class="glass-card p-4 mb-4 animate__animated animate__fadeInDown">
+              <div class="d-flex gap-3">
+                <img :src="avatar_url(user.first_name + (user.last_name ? ' ' + user.last_name : ''))" class="avatar-xs" alt="User">
+                <div class="flex-grow-1">
+                  <textarea 
+                    v-model="newFeeling" 
+                    class="premium-textarea" 
+                    rows="3" 
+                    placeholder="O que você está sentindo agora?"
+                  ></textarea>
+                  <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top border-white-50">
+                    <div class="d-flex gap-2 text-muted">
+                      <button class="btn-icon"><i class="bi bi-image"></i></button>
+                      <button class="btn-icon"><i class="bi bi-emoji-smile"></i></button>
+                    </div>
+                    <button 
+                      @click="shareFeeling" 
+                      class="btn-premium-sm" 
+                      :disabled="posting || !newFeeling.trim()"
+                    >
+                      <span v-if="posting" class="spinner-border spinner-border-sm me-1"></span>
+                      Postar
+                    </button>
                   </div>
-                  <button 
-                    @click="shareFeeling" 
-                    class="btn-premium-sm" 
-                    :disabled="posting || !newFeeling.trim()"
-                  >
-                    <span v-if="posting" class="spinner-border spinner-border-sm me-1"></span>
-                    Postar
-                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Feed List -->
+            <div v-if="loading" class="text-center py-5">
+              <div class="spinner-premium"></div>
+            </div>
+
+            <div v-else-if="feelings.length === 0" class="empty-feed text-center py-5">
+              <i class="bi bi-moon-stars fs-1 mb-3"></i>
+              <p>O silêncio é profundo por aqui... <br>Que tal compartilhar o primeiro sentimento?</p>
+            </div>
+
+            <div v-else class="feed-container animate__animated animate__fadeIn">
+              <PostCard v-for="post in feelings" :key="post.feeling_id" :post="post" />
+            </div>
+          </div>
+
+          <!-- Feelings do Momento no Mobile (Visível apenas na aba trending no celular) -->
+          <div class="d-lg-none" v-if="activeMobileTab === 'trending'">
+            <div class="glass-card p-4">
+              <h5 class="fw-bold text-white mb-4"><i class="bi bi-lightning-charge-fill text-warning me-2"></i>Feelings do Momento</h5>
+              <div class="trending-list d-flex flex-column gap-3">
+                <div v-for="(t, index) in trending" :key="t.feeling_id" class="trending-item d-flex align-items-center gap-3">
+                  <div class="rank-number">{{ index + 1 }}</div>
+                  <div class="flex-grow-1 overflow-hidden">
+                    <p class="mb-0 text-white small fw-bold text-truncate text-start">{{ t.feeling }}</p>
+                    <div class="d-flex gap-2 extra-small text-muted">
+                      <span><i class="bi bi-heart-fill text-danger me-1"></i>{{ t.total_likes }}</span>
+                      <span><i class="bi bi-chat-fill text-primary me-1"></i>{{ t.total_comments }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div v-if="trending.length === 0" class="empty-state py-3">
+                  <p class="text-muted small italic">Nenhum assunto em alta no momento.</p>
                 </div>
               </div>
             </div>
           </div>
-
-          <!-- Feed List -->
-          <div v-if="loading" class="text-center py-5">
-            <div class="spinner-premium"></div>
-          </div>
-
-          <div v-else-if="feelings.length === 0" class="empty-feed text-center py-5">
-            <i class="bi bi-moon-stars fs-1 mb-3"></i>
-            <p>O silêncio é profundo por aqui... <br>Que tal compartilhar o primeiro sentimento?</p>
-          </div>
-
-          <div v-else class="feed-container animate__animated animate__fadeIn">
-            <PostCard v-for="post in feelings" :key="post.feeling_id" :post="post" />
-          </div>
         </div>
 
-        <!-- Sidebar Right -->
+        <!-- Sidebar Right (Desktop) -->
         <div class="col-lg-3 d-none d-lg-block">
           <div class="glass-card p-4 sticky-top" style="top: 100px;">
-            <h6 class="fw-bold text-white mb-4"><i class="bi bi-lightning-charge-fill text-warning me-2"></i>Trending Top 3</h6>
+            <h6 class="fw-bold text-white mb-4"><i class="bi bi-lightning-charge-fill text-warning me-2"></i>Feelings do Momento</h6>
             <div class="trending-list d-flex flex-column gap-3">
               <div v-for="(t, index) in trending" :key="t.feeling_id" class="trending-item d-flex align-items-center gap-3">
                 <div class="rank-number">{{ index + 1 }}</div>
                 <div class="flex-grow-1 overflow-hidden">
-                  <p class="mb-0 text-white small fw-bold text-truncate">{{ t.feeling }}</p>
+                  <p class="mb-0 text-white small fw-bold text-truncate text-start">{{ t.feeling }}</p>
                   <div class="d-flex gap-2 extra-small text-muted">
                     <span><i class="bi bi-heart-fill text-danger me-1"></i>{{ t.total_likes }}</span>
                     <span><i class="bi bi-chat-fill text-primary me-1"></i>{{ t.total_comments }}</span>
@@ -310,5 +356,35 @@ function avatar_url(name) {
 
 .extra-small {
   font-size: 0.75rem;
+}
+
+/* Mobile Tabs Styling */
+.mobile-tabs-container {
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 6px;
+  width: 100%;
+}
+
+.mobile-tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 12px;
+  color: #94a3b8;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s;
+  gap: 6px;
+}
+
+.mobile-tab-btn.active {
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
 }
 </style>

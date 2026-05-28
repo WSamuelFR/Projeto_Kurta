@@ -238,7 +238,10 @@ export const getTrendingFeelings = async (req: Request, res: Response) => {
   try {
     const feelings = await prisma.feeling.findMany({
       where: {
-        OR: [{ visibility: 'public' }, { visibility: 'publico' }]
+        AND: [
+          { OR: [{ visibility: 'public' }, { visibility: 'publico' }] },
+          { cla_id: null }
+        ]
       },
       take: 50 
     });

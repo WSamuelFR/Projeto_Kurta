@@ -24,4 +24,10 @@ body {
   background-color: #050810;
   color: white;
 }
+
+@media (max-width: 768px) {
+  body {
+    padding-bottom: 75px;
+  }
+}
 </style>

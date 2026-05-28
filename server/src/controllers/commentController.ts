@@ -36,6 +36,11 @@ export const getComments = async (req: Request, res: Response) => {
 
 export const addComment = async (req: Request, res: Response) => {
   const { coment, user_id, feeling_id, parent_id } = req.body;
+  
+  if (parseInt(user_id) !== (req as any).user.userId) {
+    return res.status(403).json({ status: 'error', message: 'Não autorizado.' });
+  }
+  
   try {
     const newComment = await prisma.coments.create({
       data: {

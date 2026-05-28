@@ -6,6 +6,10 @@ export const addFriend = async (req: Request, res: Response) => {
   const senderIdInt = parseInt(sender_id);
   const receiverIdInt = parseInt(receiver_id);
   
+  if (senderIdInt !== (req as any).user.userId) {
+    return res.status(403).json({ status: 'error', message: 'Não autorizado.' });
+  }
+  
   try {
     const existing = await prisma.friendship.findFirst({
       where: {
@@ -38,10 +42,10 @@ export const addFriend = async (req: Request, res: Response) => {
 };
 
 export const getNotifications = async (req: Request, res: Response) => {
-  const { user_id } = req.query;
   try {
+    const authenticatedUserId = (req as any).user.userId;
     const notifications = await prisma.notification.findMany({
-      where: { user_id: parseInt(user_id as string) },
+      where: { user_id: authenticatedUserId },
       include: {
         user_notification_sender_idTouser: {
           select: { first_name: true, last_name: true, profile_pic: true }
@@ -57,6 +61,11 @@ export const getNotifications = async (req: Request, res: Response) => {
 
 export const respondFriendRequest = async (req: Request, res: Response) => {
   const { friendship_id, action, user_id } = req.body;
+  
+  if (parseInt(user_id) !== (req as any).user.userId) {
+    return res.status(403).json({ status: 'error', message: 'Não autorizado.' });
+  }
+  
   // action: 'accepted' ou 'rejected'
   try {
     const friendship = await prisma.friendship.findUnique({

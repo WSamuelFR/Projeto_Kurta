@@ -315,15 +315,15 @@ function wallpaper_pic_url(path) {
                 <div v-if="activeTab === 'settings'" class="animate__animated animate__fadeIn">
                   <div class="row g-3">
                     <div class="col-md-6">
-                      <label class="form-label text-muted small fw-bold">Primeiro Nome</label>
+                      <label class="form-label small fw-bold">Primeiro Nome</label>
                       <input type="text" v-model="editedUser.first_name" class="premium-input">
                     </div>
                     <div class="col-md-6">
-                      <label class="form-label text-muted small fw-bold">Sobrenome</label>
+                      <label class="form-label small fw-bold">Sobrenome</label>
                       <input type="text" v-model="editedUser.last_name" class="premium-input">
                     </div>
                     <div class="col-md-12">
-                      <label class="form-label text-muted small fw-bold">Nova Senha</label>
+                      <label class="form-label small fw-bold">Nova Senha</label>
                       <input type="password" v-model="editedUser.password" class="premium-input" placeholder="••••••••">
                     </div>
                   </div>
@@ -593,6 +593,14 @@ function wallpaper_pic_url(path) {
 }
 
 /* Inputs & Buttons */
+.form-label {
+  display: block;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+  padding-left: 5px;
+}
+
 .premium-input {
   width: 100%;
   padding: 14px 16px;

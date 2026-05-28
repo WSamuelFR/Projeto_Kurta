@@ -42,7 +42,7 @@ async function confirmShare() {
       </div>
 
       <div class="mb-4 text-start">
-        <label class="form-label text-muted small fw-bold">Sua Legenda (Opcional)</label>
+        <label class="form-label small fw-bold">Sua Legenda (Opcional)</label>
         <textarea 
           v-model="caption" 
           class="form-control bg-dark border-secondary text-white" 
@@ -91,5 +91,12 @@ async function confirmShare() {
 
 .original-preview {
   background: rgba(255, 255, 255, 0.03);
+}
+
+.form-label {
+  display: block;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
 }
 </style>

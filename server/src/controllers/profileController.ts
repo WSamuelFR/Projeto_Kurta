@@ -3,7 +3,7 @@ import prisma from '../lib/prisma';
 
 export const getProfile = async (req: Request, res: Response) => {
   const targetId = parseInt(req.query.target_id as string);
-  const myId = parseInt(req.query.my_id as string) || 0;
+  const myId = (req as any).user?.userId || 0;
 
   console.log(`[PROFILE] Carregando perfil. Target: ${targetId}, MyID: ${myId}`);
 
@@ -79,6 +79,10 @@ export const updateProfile = async (req: Request, res: Response) => {
 
   if (isNaN(id)) {
     return res.status(400).json({ success: false, message: 'ID de usuário inválido.' });
+  }
+
+  if (id !== (req as any).user.userId) {
+    return res.status(403).json({ success: false, message: 'Não autorizado a modificar este perfil.' });
   }
 
   try {
@@ -157,6 +161,11 @@ export const getFriends = async (req: Request, res: Response) => {
 
 export const removeFriend = async (req: Request, res: Response) => {
   const { user_id, friend_id } = req.body;
+  
+  if (parseInt(user_id) !== (req as any).user.userId) {
+    return res.status(403).json({ status: 'error', message: 'Não autorizado.' });
+  }
+  
   try {
     await prisma.friendship.deleteMany({
       where: {

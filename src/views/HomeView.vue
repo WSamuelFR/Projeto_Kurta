@@ -97,25 +97,11 @@ function avatar_url(name) {
         <!-- Sidebar Left -->
         <div class="col-lg-3 d-none d-lg-block">
           <div class="glass-card p-4 sticky-top" style="top: 100px;">
-            <div class="profile-mini text-center mb-4">
+            <div class="profile-mini text-center mb-0">
               <img :src="avatar_url(user.first_name + (user.last_name ? ' ' + user.last_name : ''))" class="avatar-sm mb-3 shadow" alt="Me">
               <h6 class="fw-bold text-white mb-0">{{ user.first_name }}</h6>
-              <p class="text-muted small">@{{ user.first_name?.toLowerCase() }}</p>
+              <p class="text-muted small mb-0">@{{ user.first_name?.toLowerCase() }}</p>
             </div>
-            <nav class="side-nav">
-              <router-link to="/home" class="nav-item-premium active">
-                <i class="bi bi-house-door-fill"></i> Início
-              </router-link>
-              <router-link to="/profile" class="nav-item-premium">
-                <i class="bi bi-person-fill"></i> Perfil
-              </router-link>
-              <router-link to="/search" class="nav-item-premium">
-                <i class="bi bi-compass-fill"></i> Explorar
-              </router-link>
-              <router-link to="/clans" class="nav-item-premium">
-                <i class="bi bi-shield-shaded"></i> Clãs
-              </router-link>
-            </nav>
           </div>
         </div>
 
@@ -154,7 +140,6 @@ function avatar_url(name) {
                   ></textarea>
                   <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top border-white-50">
                     <div class="d-flex gap-2 text-muted">
-                      <button class="btn-icon"><i class="bi bi-image"></i></button>
                       <button class="btn-icon"><i class="bi bi-emoji-smile"></i></button>
                     </div>
                     <button 

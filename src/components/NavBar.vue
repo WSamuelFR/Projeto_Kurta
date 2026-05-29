@@ -67,6 +67,22 @@ function logout() {
             </div>
           </div>
         </div>
+
+        <!-- Links de Navegação Desktop (Novo) -->
+        <div class="d-none d-md-flex align-items-center gap-4 mx-auto desktop-nav">
+          <router-link to="/home" class="nav-link-premium">
+            <i class="bi bi-house-door-fill me-1"></i>Início
+          </router-link>
+          <router-link to="/search" class="nav-link-premium">
+            <i class="bi bi-compass-fill me-1"></i>Explorar
+          </router-link>
+          <router-link to="/clans" class="nav-link-premium">
+            <i class="bi bi-shield-shaded"></i> Clãs
+          </router-link>
+          <router-link to="/profile" class="nav-link-premium">
+            <i class="bi bi-person-fill me-1"></i>Perfil
+          </router-link>
+        </div>
         
         <div class="d-flex align-items-center gap-3">
           <!-- Sino de Notificações -->
@@ -121,11 +137,6 @@ function logout() {
               </div>
             </div>
           </div>
-
-          <!-- Perfil visível apenas em Desktop -->
-          <router-link to="/profile" class="btn btn-outline-light btn-sm px-3 rounded-pill d-none d-md-block">
-            Meu Perfil
-          </router-link>
 
           <button @click="logout" class="btn btn-link text-danger p-0 ms-2">
             <i class="bi bi-box-arrow-right fs-5"></i>
@@ -328,5 +339,31 @@ function logout() {
 
 .bottom-nav-item:hover, .bottom-nav-item.router-link-active {
   color: #818cf8;
+}
+
+/* Desktop Nav Styling */
+.desktop-nav {
+  margin-left: 2rem;
+}
+
+.nav-link-premium {
+  color: #94a3b8;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 8px;
+}
+
+.nav-link-premium i {
+  font-size: 1.15rem;
+}
+
+.nav-link-premium:hover, .nav-link-premium.router-link-active {
+  color: #818cf8;
+  background: rgba(99, 102, 241, 0.08);
 }
 </style>

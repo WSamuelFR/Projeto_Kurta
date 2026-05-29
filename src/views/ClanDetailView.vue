@@ -287,7 +287,9 @@ function getRoleBadge(role) {
                   <div class="d-flex align-items-center gap-3">
                     <img :src="avatar_url(member.first_name + (member.last_name ? ' ' + member.last_name : ''))" class="member-avatar" alt="Avatar">
                     <div class="flex-grow-1 text-start overflow-hidden">
-                      <h6 class="mb-0 text-white fw-bold text-truncate">{{ member.first_name }} {{ member.last_name }}</h6>
+                      <router-link :to="`/user/${member.user_id}`" class="member-name-link">
+                        <h6 class="mb-0 text-white fw-bold text-truncate">{{ member.first_name }} {{ member.last_name }}</h6>
+                      </router-link>
                       <span class="role-badge" :class="getRoleBadge(member.role).class">
                         {{ getRoleBadge(member.role).label }}
                       </span>
@@ -445,5 +447,17 @@ function getRoleBadge(role) {
 .mobile-tab-btn.active {
   background: rgba(99, 102, 241, 0.15);
   color: #818cf8;
+}
+
+.member-name-link {
+  text-decoration: none;
+  transition: opacity 0.2s;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.member-name-link:hover h6 {
+  color: #818cf8 !important;
+  text-decoration: underline;
 }
 </style>

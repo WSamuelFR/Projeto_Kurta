@@ -99,7 +99,12 @@ function logout() {
             <div v-if="showDropdown" class="glass-dropdown animate__animated animate__fadeIn">
               <div class="dropdown-header d-flex justify-content-between align-items-center">
                 <span class="fw-bold">Notificações</span>
-                <span class="badge bg-primary rounded-pill">{{ notifStore.unreadCount }}</span>
+                <div class="d-flex align-items-center gap-2">
+                  <button v-if="notifStore.unreadCount > 0" class="btn btn-link text-decoration-none text-muted extra-small p-0 hover-white" @click="notifStore.clearNotifications()">
+                    Limpar tudo
+                  </button>
+                  <span class="badge bg-primary rounded-pill">{{ notifStore.unreadCount }}</span>
+                </div>
               </div>
               
               <div class="dropdown-body">
@@ -115,6 +120,18 @@ function logout() {
                       <i class="bi bi-person-plus text-info me-1"></i>
                       <strong class="text-info">{{ notif.user_notification_sender_idTouser.first_name }}</strong> enviou um convite de amizade.
                     </p>
+                    <p class="mb-0 text-white small" v-else-if="notif.notif_type === 'friend_accepted'">
+                      <i class="bi bi-person-check text-success me-1"></i>
+                      <strong class="text-success">{{ notif.user_notification_sender_idTouser.first_name }}</strong> aceitou seu convite de amizade!
+                    </p>
+                    <p class="mb-0 text-white small" v-else-if="notif.notif_type === 'clan_request'">
+                      <i class="bi bi-shield-exclamation text-warning me-1"></i>
+                      <strong class="text-warning">{{ notif.user_notification_sender_idTouser.first_name }}</strong> solicitou entrada no clã.
+                    </p>
+                    <p class="mb-0 text-white small" v-else-if="notif.notif_type === 'clan_accepted'">
+                      <i class="bi bi-shield-check text-success me-1"></i>
+                      Sua solicitação de entrada no clã foi aceita!
+                    </p>
                     <p class="mb-0 text-white small" v-else-if="notif.notif_type === 'clan_join'">
                       <i class="bi bi-shield-check text-warning me-1"></i>
                       <strong class="text-warning">{{ notif.user_notification_sender_idTouser.first_name }}</strong> entrou no clã.
@@ -123,9 +140,9 @@ function logout() {
                       <i class="bi bi-info-circle text-muted me-1"></i>
                       Notificação de <strong>{{ notif.user_notification_sender_idTouser.first_name }}</strong>.
                     </p>
-                    <span class="text-muted extra-small">{{ new Date(notif.created_at).toLocaleTimeString() }}</span>
+                    <span class="text-muted extra-small d-block">{{ new Date(notif.created_at).toLocaleTimeString() }}</span>
                   </div>
-                  <div class="d-flex gap-1" v-if="notif.notif_type === 'friend_request'">
+                  <div class="d-flex gap-1" v-if="notif.notif_type === 'friend_request' || notif.notif_type === 'clan_request'">
                     <button class="btn btn-xs btn-success" @click="handleAction(notif, 'accept')">
                       <i class="bi bi-check-lg"></i>
                     </button>
@@ -369,5 +386,8 @@ function logout() {
 .nav-link-premium:hover, .nav-link-premium.router-link-active {
   color: #818cf8;
   background: rgba(99, 102, 241, 0.08);
+}
+.hover-white:hover {
+  color: white !important;
 }
 </style>

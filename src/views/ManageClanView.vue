@@ -155,11 +155,27 @@ function clan_pic_url(name) {
 
             <div class="mb-5">
               <label class="label-premium">Privacidade</label>
-              <div class="input-glass-wrapper">
-                <select v-model="clan.visibility">
-                  <option value="public">Público</option>
-                  <option value="private">Privado</option>
-                </select>
+              <div class="btn-toggle-premium">
+                <button 
+                  type="button" 
+                  class="toggle-btn" 
+                  :class="{ active: clan.visibility === 'public' }"
+                  @click="clan.visibility = 'public'"
+                >
+                  <i class="bi bi-globe me-2"></i>
+                  <span>Público</span>
+                  <small class="d-block text-white-50 extra-small mt-1">Qualquer pessoa pode entrar</small>
+                </button>
+                <button 
+                  type="button" 
+                  class="toggle-btn" 
+                  :class="{ active: clan.visibility === 'private' }"
+                  @click="clan.visibility = 'private'"
+                >
+                  <i class="bi bi-shield-lock me-2"></i>
+                  <span>Privado</span>
+                  <small class="d-block text-white-50 extra-small mt-1">Requer solicitação de entrada</small>
+                </button>
               </div>
             </div>
 
@@ -338,4 +354,49 @@ function clan_pic_url(name) {
   margin: 2rem auto;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+.btn-toggle-premium {
+  display: flex;
+  gap: 15px;
+}
+
+.toggle-btn {
+  flex: 1;
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 16px;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: center;
+}
+
+.toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.toggle-btn.active {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: #6366f1;
+  color: white;
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.15);
+}
+
+.toggle-btn i {
+  font-size: 1.3rem;
+  display: block;
+  margin-bottom: 6px;
+  transition: transform 0.3s;
+}
+
+.toggle-btn.active i {
+  color: #6366f1;
+  transform: scale(1.1);
+}
+
+.extra-small {
+  font-size: 0.75rem;
+}
 </style>

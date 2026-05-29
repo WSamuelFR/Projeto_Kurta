@@ -32,11 +32,19 @@ export const useNotificationStore = defineStore('notifications', {
     async respond(notif, action) {
       try {
         const user = JSON.parse(localStorage.getItem('fellit_user') || '{}')
-        const res = await axios.post('/api/social/respond-friend', {
-          friendship_id: notif.reference_id,
-          user_id: user.id,
-          action: action === 'accept' ? 'accepted' : 'rejected'
-        })
+        let res
+        if (notif.notif_type === 'clan_request') {
+          res = await axios.post('/api/clans/respond-join', {
+            notification_id: notif.notif_id,
+            action: action === 'accept' ? 'accepted' : 'rejected'
+          })
+        } else {
+          res = await axios.post('/api/social/respond-friend', {
+            friendship_id: notif.reference_id,
+            user_id: user.id,
+            action: action === 'accept' ? 'accepted' : 'rejected'
+          })
+        }
         
         if (res.data.status === 'success') {
           this.notifications = this.notifications.filter(n => n.notif_id !== notif.notif_id)
@@ -44,7 +52,21 @@ export const useNotificationStore = defineStore('notifications', {
         }
         return false
       } catch (err) {
-        console.error('Erro ao responder convite:', err)
+        console.error('Erro ao responder solicitação:', err)
+        return false
+      }
+    },
+    
+    async clearNotifications() {
+      try {
+        const res = await axios.post('/api/social/notifications/read-all')
+        if (res.data.status === 'success') {
+          this.notifications = []
+          return true
+        }
+        return false
+      } catch (err) {
+        console.error('Erro ao limpar notificações:', err)
         return false
       }
     }

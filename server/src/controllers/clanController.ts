@@ -151,7 +151,6 @@ export const getClanById = async (req: Request, res: Response) => {
 
 export const getClanMembers = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { user_id } = req.query;
   const c_id = parseInt(id as string);
 
   if (isNaN(c_id)) {
@@ -159,6 +158,9 @@ export const getClanMembers = async (req: Request, res: Response) => {
   }
 
   try {
+    const clan = await prisma.clan.findUnique({ where: { clan_id: c_id } });
+    if (!clan) return res.status(404).json({ status: 'error', message: 'Clã não encontrado.' });
+
     const members = await prisma.clan_member.findMany({
       where: { clan_id: c_id },
       include: {
@@ -174,16 +176,34 @@ export const getClanMembers = async (req: Request, res: Response) => {
     });
 
     let viewerRole = null;
+    let requestPending = false;
     const authenticatedUserId = (req as any).user.userId;
     const viewer = members.find(m => m.user_id === authenticatedUserId);
-    if (viewer) viewerRole = viewer.role;
+    
+    if (viewer) {
+      viewerRole = viewer.role;
+    } else {
+      const pendingReq = await prisma.notification.findFirst({
+        where: {
+          notif_type: 'clan_request',
+          sender_id: authenticatedUserId,
+          reference_id: c_id,
+          is_read: false
+        }
+      });
+      if (pendingReq) requestPending = true;
+    }
+
+    if (clan.visibility === 'private' && !viewer) {
+      return res.json({ status: 'success', data: [], viewerRole, requestPending });
+    }
 
     const formattedMembers = members.map(m => ({
       ...m.user,
       role: m.role
     }));
 
-    res.json({ status: 'success', data: formattedMembers, viewerRole });
+    res.json({ status: 'success', data: formattedMembers, viewerRole, requestPending });
   } catch (error) {
     console.error(error);
     res.status(500).json({ status: 'error', message: 'Erro ao carregar membros.' });
@@ -261,5 +281,146 @@ export const removeMember = async (req: Request, res: Response) => {
     res.json({ status: 'success', message: 'Membro removido.' });
   } catch (error) {
     res.status(500).json({ status: 'error', message: 'Erro ao remover membro.' });
+  }
+};
+
+export const requestJoinClan = async (req: Request, res: Response) => {
+  const { clan_id, user_id } = req.body;
+  const c_id = parseInt(clan_id);
+  const u_id = parseInt(user_id);
+
+  if (isNaN(c_id) || isNaN(u_id)) {
+    return res.status(400).json({ status: 'error', message: 'Dados de identificação inválidos.' });
+  }
+
+  if (u_id !== (req as any).user.userId) {
+    return res.status(403).json({ status: 'error', message: 'Não autorizado.' });
+  }
+
+  try {
+    const clan = await prisma.clan.findUnique({
+      where: { clan_id: c_id },
+      include: {
+        clan_member: {
+          where: { role: 'rei' }
+        }
+      }
+    });
+
+    if (!clan) {
+      return res.status(404).json({ status: 'error', message: 'Clã não encontrado.' });
+    }
+
+    const isMember = await prisma.clan_member.findFirst({
+      where: { clan_id: c_id, user_id: u_id }
+    });
+
+    if (isMember) {
+      return res.status(400).json({ status: 'error', message: 'Você já é membro deste clã.' });
+    }
+
+    const owner = clan.clan_member[0];
+    if (!owner) {
+      return res.status(404).json({ status: 'error', message: 'Rei do clã não encontrado.' });
+    }
+
+    const existing = await prisma.notification.findFirst({
+      where: {
+        user_id: owner.user_id,
+        sender_id: u_id,
+        notif_type: 'clan_request',
+        reference_id: c_id,
+        is_read: false
+      }
+    });
+
+    if (existing) {
+      return res.json({ status: 'success', message: 'Solicitação de entrada já enviada!' });
+    }
+
+    await prisma.notification.create({
+      data: {
+        user_id: owner.user_id,
+        sender_id: u_id,
+        notif_type: 'clan_request',
+        reference_id: c_id
+      }
+    });
+
+    res.json({ status: 'success', message: 'Solicitação de entrada enviada!' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ status: 'error', message: 'Erro ao solicitar entrada no clã.' });
+  }
+};
+
+export const respondJoinClan = async (req: Request, res: Response) => {
+  const { notification_id, action } = req.body;
+  const notif_id = parseInt(notification_id);
+  const authenticatedUserId = (req as any).user.userId;
+
+  if (isNaN(notif_id)) {
+    return res.status(400).json({ status: 'error', message: 'ID de notificação inválido.' });
+  }
+
+  try {
+    const notification = await prisma.notification.findUnique({
+      where: { notif_id }
+    });
+
+    if (!notification || notification.user_id !== authenticatedUserId || notification.notif_type !== 'clan_request') {
+      return res.status(404).json({ status: 'error', message: 'Solicitação não encontrada ou não autorizada.' });
+    }
+
+    const c_id = notification.reference_id;
+    if (!c_id) {
+      return res.status(400).json({ status: 'error', message: 'ID do clã ausente na notificação.' });
+    }
+
+    const owner = await prisma.clan_member.findFirst({
+      where: { clan_id: c_id, user_id: authenticatedUserId, role: 'rei' }
+    });
+
+    if (!owner) {
+      return res.status(403).json({ status: 'error', message: 'Apenas o Rei do clã pode responder à solicitação.' });
+    }
+
+    if (action === 'accepted') {
+      const existingMember = await prisma.clan_member.findFirst({
+        where: { clan_id: c_id, user_id: notification.sender_id }
+      });
+
+      if (!existingMember) {
+        await prisma.clan_member.create({
+          data: {
+            clan_id: c_id,
+            user_id: notification.sender_id,
+            role: 'aldeao'
+          }
+        });
+      }
+
+      await prisma.notification.create({
+        data: {
+          user_id: notification.sender_id,
+          sender_id: authenticatedUserId,
+          notif_type: 'clan_accepted',
+          reference_id: c_id
+        }
+      });
+    }
+
+    await prisma.notification.update({
+      where: { notif_id },
+      data: { is_read: true }
+    });
+
+    res.json({
+      status: 'success',
+      message: action === 'accepted' ? 'Membro aceito no clã!' : 'Solicitação rejeitada.'
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ status: 'error', message: 'Erro ao responder à solicitação.' });
   }
 };

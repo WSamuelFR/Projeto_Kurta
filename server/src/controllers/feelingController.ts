@@ -186,6 +186,20 @@ export const getClanFeelings = async (req: Request, res: Response) => {
   }
 
   try {
+    const clan = await prisma.clan.findUnique({
+      where: { clan_id: c_id }
+    });
+    if (!clan) return res.status(404).json({ status: 'error', message: 'Clã não encontrado.' });
+
+    if (clan.visibility === 'private') {
+      const isMember = await prisma.clan_member.findFirst({
+        where: { clan_id: c_id, user_id: visitorId }
+      });
+      if (!isMember) {
+        return res.status(403).json({ status: 'error', message: 'Este clã é privado. Apenas membros podem ver o mural.' });
+      }
+    }
+
     // 1. Buscar sentimentos do clã
     const feelings = await prisma.feeling.findMany({
       where: { cla_id: c_id },

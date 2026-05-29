@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import axios from 'axios'
+import { encodeId } from '../utils/obfuscator'
 
 const query = ref('')
 const results = ref([])
@@ -57,15 +58,13 @@ function avatar_url(user) {
 
 <template>
   <div class="user-search mb-4">
-    <div class="input-group">
-      <span class="input-group-text bg-dark border-secondary text-white">
-        <i class="bi bi-search"></i>
-      </span>
+    <div class="input-glass-wrapper">
+      <i class="bi bi-search"></i>
       <input 
         type="text" 
         v-model="query" 
         @input="searchUsers" 
-        class="form-control bg-dark border-secondary text-white" 
+        class="search-input" 
         placeholder="Buscar novos amigos (mín. 3 letras)..."
       >
     </div>
@@ -78,7 +77,9 @@ function avatar_url(user) {
       <div v-for="user in results" :key="user.user_id" class="search-item d-flex align-items-center gap-3 p-2 border-bottom border-white-50">
         <img :src="avatar_url(user)" class="search-avatar" alt="Avatar">
         <div class="flex-grow-1 text-start">
-          <h6 class="mb-0 text-white fw-bold">{{ user.first_name }} {{ user.last_name }}</h6>
+          <router-link :to="'/user/' + encodeId(user.user_id)" class="text-white text-decoration-none">
+            <h6 class="mb-0 fw-bold hover-primary">{{ user.first_name }} {{ user.last_name }}</h6>
+          </router-link>
           <span class="text-muted small">@{{ user.first_name.toLowerCase() }}{{ user.user_id }}</span>
         </div>
         <button class="btn btn-sm btn-primary" @click="sendInvite(user.user_id)">
@@ -97,6 +98,8 @@ function avatar_url(user) {
   width: 100%;
   z-index: 100;
   background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
 }
 .search-item:last-child {
   border-bottom: none !important;
@@ -109,5 +112,40 @@ function avatar_url(user) {
 }
 .user-search {
   position: relative;
+}
+.input-glass-wrapper {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  padding: 5px 15px;
+  transition: all 0.3s;
+}
+.input-glass-wrapper:focus-within {
+  background: rgba(15, 23, 42, 0.8);
+  border-color: #6366f1;
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+}
+.input-glass-wrapper i {
+  color: #64748b;
+  font-size: 1.2rem;
+  margin-right: 12px;
+}
+.search-input {
+  background: transparent;
+  border: none;
+  color: white;
+  width: 100%;
+  padding: 12px 0;
+}
+.search-input:focus {
+  outline: none;
+}
+.hover-primary {
+  transition: color 0.2s;
+}
+.hover-primary:hover {
+  color: #6366f1 !important;
 }
 </style>

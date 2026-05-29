@@ -45,7 +45,10 @@ export const getNotifications = async (req: Request, res: Response) => {
   try {
     const authenticatedUserId = (req as any).user.userId;
     const notifications = await prisma.notification.findMany({
-      where: { user_id: authenticatedUserId },
+      where: { 
+        user_id: authenticatedUserId,
+        is_read: false
+      },
       include: {
         user_notification_sender_idTouser: {
           select: { first_name: true, last_name: true, profile_pic: true }
@@ -96,8 +99,38 @@ export const respondFriendRequest = async (req: Request, res: Response) => {
       });
     }
 
+    // Marcar a notificação correspondente como lida
+    await prisma.notification.updateMany({
+      where: {
+        user_id: user_id,
+        reference_id: friendship_id,
+        notif_type: 'friend_request'
+      },
+      data: { is_read: true }
+    });
+
     res.json({ status: 'success', message: action === 'accepted' ? 'Amizade Consagrada!' : 'Pedido Rejeitado.' });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ status: 'error', message: 'Erro ao processar pedido.' });
+  }
+};
+
+export const readAllNotifications = async (req: Request, res: Response) => {
+  try {
+    const authenticatedUserId = (req as any).user.userId;
+    await prisma.notification.updateMany({
+      where: {
+        user_id: authenticatedUserId,
+        is_read: false
+      },
+      data: {
+        is_read: true
+      }
+    });
+    res.json({ status: 'success', message: 'Todas as notificações marcadas como lidas.' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ status: 'error', message: 'Erro ao limpar notificações.' });
   }
 };

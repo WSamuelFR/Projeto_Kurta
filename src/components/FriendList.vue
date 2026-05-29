@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import { encodeId } from '../utils/obfuscator'
 
 const props = defineProps({
   userId: Number
@@ -62,7 +63,9 @@ function avatar_url(name) {
         <div class="friend-card glass-card p-3 d-flex align-items-center gap-3">
           <img :src="avatar_url(friend.first_name + (friend.last_name ? ' ' + friend.last_name : ''))" class="friend-avatar" alt="Avatar">
           <div class="flex-grow-1 overflow-hidden">
-            <h6 class="mb-0 text-white text-truncate">{{ friend.first_name }} {{ friend.last_name }}</h6>
+            <router-link :to="'/user/' + encodeId(friend.user_id)" class="text-white text-decoration-none">
+              <h6 class="mb-0 text-white text-truncate hover-primary fw-bold">{{ friend.first_name }} {{ friend.last_name }}</h6>
+            </router-link>
             <span class="text-muted small">Amigo</span>
           </div>
           <button class="btn btn-sm btn-outline-danger" @click="removeFriend(friend.user_id)">
@@ -89,5 +92,11 @@ function avatar_url(name) {
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid rgba(255, 255, 255, 0.1);
+}
+.hover-primary {
+  transition: color 0.2s;
+}
+.hover-primary:hover {
+  color: #6366f1 !important;
 }
 </style>

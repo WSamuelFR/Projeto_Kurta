@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAllClans, createClan, joinClan, getClanById, getClanMembers, updateClan, changeRole, removeMember } from '../controllers/clanController';
+import { getAllClans, createClan, joinClan, getClanById, getClanMembers, updateClan, changeRole, removeMember, requestJoinClan, respondJoinClan } from '../controllers/clanController';
 import multer from 'multer';
 import path from 'path';
 
@@ -21,6 +21,8 @@ router.get('/:id/members', getClanMembers);
 router.post('/create', upload.single('clan_pic'), createClan);
 router.post('/update', updateClan);
 router.post('/join', joinClan);
+router.post('/request-join', requestJoinClan);
+router.post('/respond-join', respondJoinClan);
 router.post('/change-role', changeRole);
 router.post('/remove-member', removeMember);
 

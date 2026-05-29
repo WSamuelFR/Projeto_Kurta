@@ -13,6 +13,7 @@ const clan = ref(null)
 const members = ref([])
 const feelings = ref([])
 const viewerRole = ref(null)
+const requestPending = ref(false)
 const loading = ref(true)
 const joining = ref(false)
 const posting = ref(false)
@@ -43,6 +44,12 @@ async function fetchClanData() {
     if (resMembers.data.status === 'success') {
       members.value = resMembers.data.data
       viewerRole.value = resMembers.data.viewerRole
+      requestPending.value = resMembers.data.requestPending || false
+
+      // Se for privado e não for membro, força aba 'Sobre' no mobile
+      if (clan.value && clan.value.visibility === 'private' && !viewerRole.value) {
+        activeMobileTab.value = 'about'
+      }
     }
   } catch (err) {
     console.error('Erro ao carregar clã:', err)
@@ -78,12 +85,37 @@ async function joinClan() {
     if (res.data.status === 'success') {
       window.$toast.add('Bem-vindo ao Clã!', 'success')
       await fetchClanData()
+      await fetchClanFeelings()
     } else {
       window.$toast.add(res.data.message || 'Não foi possível entrar no clã.', 'error')
     }
   } catch (err) {
     console.error('Erro ao entrar no clã:', err)
     window.$toast.add('Erro ao processar sua entrada.', 'error')
+  } finally {
+    joining.value = false
+  }
+}
+
+async function requestJoin() {
+  const userLocal = JSON.parse(localStorage.getItem('fellit_user') || '{}')
+  if (!userLocal.id) return router.push('/login')
+
+  joining.value = true
+  try {
+    const res = await axios.post('/api/clans/request-join', {
+      clan_id: parseInt(clanId),
+      user_id: userLocal.id
+    })
+    if (res.data.status === 'success') {
+      window.$toast.add('Solicitação de entrada enviada!', 'success')
+      requestPending.value = true
+    } else {
+      window.$toast.add(res.data.message || 'Não foi possível enviar a solicitação.', 'error')
+    }
+  } catch (err) {
+    console.error('Erro ao solicitar entrada no clã:', err)
+    window.$toast.add('Erro ao processar sua solicitação.', 'error')
   } finally {
     joining.value = false
   }
@@ -139,7 +171,7 @@ function getRoleBadge(role) {
       <!-- Main Layout: 3 colunas no desktop, igual ao feed da Home -->
       <div class="container py-5">
         <!-- Tabs para Mobile -->
-        <div class="mobile-tabs-container d-lg-none d-flex mb-4">
+        <div v-if="clan.visibility !== 'private' || viewerRole" class="mobile-tabs-container d-lg-none d-flex mb-4">
           <button 
             class="mobile-tab-btn" 
             :class="{ active: activeMobileTab === 'feed' }" 
@@ -176,7 +208,9 @@ function getRoleBadge(role) {
 
                 <div class="mt-3">
                   <h3 class="clan-name-text text-white fw-bold mb-1">{{ clan.name_clan }}</h3>
-                  <span class="badge-visibility d-inline-block mb-3" :class="clan.visibility">{{ clan.visibility }}</span>
+                  <span class="badge-visibility d-inline-block mb-3" :class="clan.visibility">
+                    {{ clan.visibility === 'private' ? 'Privado' : 'Público' }}
+                  </span>
                   <p class="clan-desc-text text-muted text-start">{{ clan.description || 'Uma união lendária no fell.it.' }}</p>
                 </div>
 
@@ -184,14 +218,30 @@ function getRoleBadge(role) {
                   <router-link v-if="viewerRole === 'rei'" :to="`/clan/${encodeId(clanId)}/manage`" class="btn-premium-outline w-100 d-block text-center mb-2">
                     <i class="bi bi-gear-fill me-2"></i>Gerenciar Clã
                   </router-link>
-                  <button 
-                    v-if="!viewerRole" 
-                    class="btn-premium-action w-100 py-3" 
-                    @click="joinClan"
-                    :disabled="joining"
-                  >
-                    <i class="bi bi-shield-lock-fill me-2"></i>Participar do Clã
-                  </button>
+                  <template v-else-if="!viewerRole">
+                    <button 
+                      v-if="clan.visibility === 'private' && !requestPending"
+                      class="btn-premium-action w-100 py-3" 
+                      @click="requestJoin"
+                      :disabled="joining"
+                    >
+                      <i class="bi bi-shield-lock-fill me-2"></i>Solicitar Entrada
+                    </button>
+                    <span 
+                      v-else-if="clan.visibility === 'private' && requestPending"
+                      class="badge-pending-label d-block text-center py-3"
+                    >
+                      <i class="bi bi-hourglass-split me-2"></i>SOLICITAÇÃO PENDENTE
+                    </span>
+                    <button 
+                      v-else
+                      class="btn-premium-action w-100 py-3" 
+                      @click="joinClan"
+                      :disabled="joining"
+                    >
+                      <i class="bi bi-shield-lock-fill me-2"></i>Participar do Clã
+                    </button>
+                  </template>
                   <span v-else class="badge-member-label d-block text-center py-3">
                     <i class="bi bi-check-circle-fill me-2"></i>VOCÊ É MEMBRO
                   </span>
@@ -232,71 +282,101 @@ function getRoleBadge(role) {
             </div>
           </div>
 
-          <!-- Coluna Central: Mural + Feed (Visível no desktop ou aba 'Mural' no celular) -->
-          <div class="col-lg-6 col-12" :class="{ 'd-none d-lg-block': activeMobileTab !== 'feed' }">
-            <!-- Posting Area (Only for members) -->
-            <div v-if="viewerRole" class="glass-card p-4 mb-4 shadow animate__animated animate__fadeIn">
-               <h6 class="text-white-50 mb-3 small fw-bold text-start">MURAL DO CLÃ</h6>
-               <div class="d-flex gap-3">
-                 <div class="flex-grow-1">
-                   <textarea 
-                     v-model="newFeeling" 
-                     class="clan-post-textarea" 
-                     placeholder="O que o clã precisa saber?"
-                     rows="3"
-                   ></textarea>
-                   <div class="d-flex justify-content-end mt-3">
-                      <button class="btn-premium-action py-2 px-4" @click="shareFeeling" :disabled="posting">
-                         <span v-if="!posting">COMPARTILHAR NO CLÃ</span>
-                         <span v-else class="spinner-border spinner-border-sm"></span>
-                      </button>
+          <!-- Lock Screen (Visível no desktop para não-membros em clãs privados) -->
+          <template v-if="clan.visibility === 'private' && !viewerRole">
+            <div class="col-lg-9 col-12 d-none d-lg-block">
+              <div class="glass-card lock-screen-card p-5 text-center shadow animate__animated animate__fadeIn">
+                <div class="lock-icon-badge mb-4 animate__animated animate__pulse animate__infinite">
+                  <i class="bi bi-shield-lock-fill"></i>
+                </div>
+                <h2 class="text-white fw-bold mb-3">Este Clã é Privado</h2>
+                <p class="text-muted mx-auto mb-4" style="max-width: 500px; font-size: 1.05rem; line-height: 1.6;">
+                  O mural de sentimentos e a lista de integrantes deste clã são restritos apenas aos membros oficiais. Solicite a entrada para participar!
+                </p>
+                <div class="mt-2">
+                  <button 
+                    v-if="!requestPending" 
+                    class="btn-premium-action py-3 px-5 fs-6" 
+                    @click="requestJoin" 
+                    :disabled="joining"
+                  >
+                    <i class="bi bi-shield-lock-fill me-2"></i>Solicitar Entrada no Clã
+                  </button>
+                  <span v-else class="badge-pending-label d-inline-block py-3 px-5">
+                    <i class="bi bi-hourglass-split me-2"></i>Solicitação Pendente de Aprovação
+                  </span>
+                </div>
+              </div>
+            </div>
+          </template>
+
+          <template v-else>
+            <!-- Coluna Central: Mural + Feed (Visível no desktop ou aba 'Mural' no celular) -->
+            <div class="col-lg-6 col-12" :class="{ 'd-none d-lg-block': activeMobileTab !== 'feed' }">
+              <!-- Posting Area (Only for members) -->
+              <div v-if="viewerRole" class="glass-card p-4 mb-4 shadow animate__animated animate__fadeIn">
+                 <h6 class="text-white-50 mb-3 small fw-bold text-start">MURAL DO CLÃ</h6>
+                 <div class="d-flex gap-3">
+                   <div class="flex-grow-1">
+                     <textarea 
+                       v-model="newFeeling" 
+                       class="clan-post-textarea" 
+                       placeholder="O que o clã precisa saber?"
+                       rows="3"
+                     ></textarea>
+                     <div class="d-flex justify-content-end mt-3">
+                        <button class="btn-premium-action py-2 px-4" @click="shareFeeling" :disabled="posting">
+                           <span v-if="!posting">COMPARTILHAR NO CLÃ</span>
+                           <span v-else class="spinner-border spinner-border-sm"></span>
+                        </button>
+                     </div>
                    </div>
                  </div>
-               </div>
-            </div>
-
-            <!-- Feed do Clã -->
-            <div class="clan-feed mb-4">
-               <h5 class="fw-bold text-white mb-4 text-start"><i class="bi bi-chat-left-dots-fill me-2 text-primary"></i>Mural do Clã</h5>
-               <div v-if="feelings.length > 0">
-                 <div v-for="post in feelings" :key="post.feeling_id" class="mb-4 text-start">
-                    <PostCard :post="post" />
-                 </div>
-               </div>
-               <div v-else class="glass-card p-5 text-center text-white-50 italic">
-                  Ainda não há registros no mural deste clã.
-               </div>
-            </div>
-          </div>
-
-          <!-- Coluna Direita: Integrantes/Membros (Visível no desktop ou aba 'Membros' no celular) -->
-          <div class="col-lg-3 col-12" :class="{ 'd-none d-lg-block': activeMobileTab !== 'members' }">
-            <div class="glass-card p-4 sticky-top" style="top: 100px;">
-              <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="fw-bold text-white mb-0"><i class="bi bi-people-fill me-2 text-primary"></i>Integrantes</h5>
-                <span class="text-muted small">{{ members.length }} membros</span>
               </div>
-              
-              <div class="member-grid">
-                <div v-for="member in members" :key="member.user_id" class="member-card-premium">
-                  <div class="d-flex align-items-center gap-3">
-                    <img :src="avatar_url(member.first_name + (member.last_name ? ' ' + member.last_name : ''))" class="member-avatar" alt="Avatar">
-                    <div class="flex-grow-1 text-start overflow-hidden">
-                      <router-link :to="`/user/${encodeId(member.user_id)}`" class="member-name-link">
-                        <h6 class="mb-0 text-white fw-bold text-truncate">{{ member.first_name }} {{ member.last_name }}</h6>
+
+              <!-- Feed do Clã -->
+              <div class="clan-feed mb-4">
+                 <h5 class="fw-bold text-white mb-4 text-start"><i class="bi bi-chat-left-dots-fill me-2 text-primary"></i>Mural do Clã</h5>
+                 <div v-if="feelings.length > 0">
+                   <div v-for="post in feelings" :key="post.feeling_id" class="mb-4 text-start">
+                      <PostCard :post="post" />
+                   </div>
+                 </div>
+                 <div v-else class="glass-card p-5 text-center text-white-50 italic">
+                    Ainda não há registros no mural deste clã.
+                 </div>
+              </div>
+            </div>
+
+            <!-- Coluna Direita: Integrantes/Membros (Visível no desktop ou aba 'Membros' no celular) -->
+            <div class="col-lg-3 col-12" :class="{ 'd-none d-lg-block': activeMobileTab !== 'members' }">
+              <div class="glass-card p-4 sticky-top" style="top: 100px;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                  <h5 class="fw-bold text-white mb-0"><i class="bi bi-people-fill me-2 text-primary"></i>Integrantes</h5>
+                  <span class="text-muted small">{{ members.length }} membros</span>
+                </div>
+                
+                <div class="member-grid">
+                  <div v-for="member in members" :key="member.user_id" class="member-card-premium">
+                    <div class="d-flex align-items-center gap-3">
+                      <img :src="avatar_url(member.first_name + (member.last_name ? ' ' + member.last_name : ''))" class="member-avatar" alt="Avatar">
+                      <div class="flex-grow-1 text-start overflow-hidden">
+                        <router-link :to="`/user/${encodeId(member.user_id)}`" class="member-name-link">
+                          <h6 class="mb-0 text-white fw-bold text-truncate">{{ member.first_name }} {{ member.last_name }}</h6>
+                        </router-link>
+                        <span class="role-badge" :class="getRoleBadge(member.role).class">
+                          {{ getRoleBadge(member.role).label }}
+                        </span>
+                      </div>
+                      <router-link :to="`/user/${encodeId(member.user_id)}`" class="btn-view-member ms-auto">
+                        <i class="bi bi-arrow-right"></i>
                       </router-link>
-                      <span class="role-badge" :class="getRoleBadge(member.role).class">
-                        {{ getRoleBadge(member.role).label }}
-                      </span>
                     </div>
-                    <router-link :to="`/user/${encodeId(member.user_id)}`" class="btn-view-member ms-auto">
-                      <i class="bi bi-arrow-right"></i>
-                    </router-link>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          </template>
         </div>
       </div>
     </template>
@@ -431,5 +511,45 @@ function getRoleBadge(role) {
 .member-name-link:hover h6 {
   color: #818cf8 !important;
   text-decoration: underline;
+}
+
+.badge-visibility.private {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.badge-pending-label {
+  background: rgba(245, 158, 11, 0.1);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  padding: 12px 24px;
+  border-radius: 16px;
+  font-weight: 700;
+}
+
+.lock-screen-card {
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  background: rgba(15, 23, 42, 0.4);
+  padding: 80px 40px !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 30px;
+}
+
+.lock-icon-badge {
+  width: 90px;
+  height: 90px;
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  box-shadow: 0 0 30px rgba(239, 68, 68, 0.1);
 }
 </style>

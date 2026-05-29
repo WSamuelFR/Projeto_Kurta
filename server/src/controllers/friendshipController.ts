@@ -134,3 +134,29 @@ export const readAllNotifications = async (req: Request, res: Response) => {
     res.status(500).json({ status: 'error', message: 'Erro ao limpar notificações.' });
   }
 };
+
+export const readSingleNotification = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const notif_id = parseInt(id as string);
+  const authenticatedUserId = (req as any).user.userId;
+
+  if (isNaN(notif_id)) {
+    return res.status(400).json({ status: 'error', message: 'ID de notificação inválido.' });
+  }
+
+  try {
+    await prisma.notification.updateMany({
+      where: {
+        notif_id,
+        user_id: authenticatedUserId
+      },
+      data: {
+        is_read: true
+      }
+    });
+    res.json({ status: 'success', message: 'Notificação marcada como lida.' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ status: 'error', message: 'Erro ao marcar notificação como lida.' });
+  }
+};

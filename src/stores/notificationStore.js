@@ -69,6 +69,20 @@ export const useNotificationStore = defineStore('notifications', {
         console.error('Erro ao limpar notificações:', err)
         return false
       }
+    },
+
+    async markAsRead(notifId) {
+      try {
+        const res = await axios.post(`/api/social/notifications/read/${notifId}`)
+        if (res.data.status === 'success') {
+          this.notifications = this.notifications.filter(n => n.notif_id !== notifId)
+          return true
+        }
+        return false
+      } catch (err) {
+        console.error('Erro ao marcar notificação como lida:', err)
+        return false
+      }
     }
   }
 })

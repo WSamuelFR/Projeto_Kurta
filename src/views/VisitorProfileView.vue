@@ -15,6 +15,7 @@ const loading = ref(true)
 const activeTab = ref('mural')
 const friendshipStatus = ref('none')
 const friendshipId = ref(null)
+const showUnfriendModal = ref(false)
 
 onMounted(fetchData)
 
@@ -78,9 +79,8 @@ async function handleSocialAction() {
     endpoint = '/api/social/respond-friend'
     data = { user_id: myUser.id, friendship_id: friendshipId.value, action: 'accepted' }
   } else if (friendshipStatus.value === 'accepted') {
-    if (!confirm('Deseja remover amizade?')) return
-    endpoint = '/api/social/remove-friend'
-    data = { user_id: myUser.id, friend_id: targetIdInt }
+    showUnfriendModal.value = true
+    return
   }
 
   if (!endpoint) return
@@ -90,6 +90,26 @@ async function handleSocialAction() {
     if (res.data.status === 'success') {
       window.$toast.add('Ação realizada com sucesso!', 'success')
       fetchData() 
+    }
+  } catch (err) {
+    console.error(err)
+    window.$toast.add('Erro ao processar ação social.', 'error')
+  }
+}
+
+async function confirmUnfriend() {
+  showUnfriendModal.value = false
+  const myUser = JSON.parse(localStorage.getItem('fellit_user') || '{}')
+  const targetIdInt = parseInt(userId.value)
+
+  try {
+    const res = await axios.post('/api/social/remove-friend', {
+      user_id: myUser.id,
+      friend_id: targetIdInt
+    })
+    if (res.data.status === 'success') {
+      window.$toast.add('Amizade removida.', 'success')
+      fetchData()
     }
   } catch (err) {
     console.error(err)
@@ -216,6 +236,18 @@ function clan_pic_url(name) {
         </div>
       </div>
     </div>
+
+    <!-- Modal de Confirmação para Desfazer Amizade -->
+    <div v-if="showUnfriendModal" class="custom-modal-overlay">
+      <div class="custom-modal-content glass-card p-4 animate__animated animate__zoomIn">
+        <h5 class="text-white fw-bold mb-3">Desfazer Amizade?</h5>
+        <p class="text-white-50 small mb-4">Tem certeza que deseja remover esta pessoa da sua lista de amigos? Vocês não estarão mais conectados.</p>
+        <div class="d-flex justify-content-center gap-3">
+          <button class="btn btn-sm btn-outline-secondary px-3 py-2 rounded-3 text-white" @click="showUnfriendModal = false">Cancelar</button>
+          <button class="btn btn-sm btn-danger px-3 py-2 rounded-3" @click="confirmUnfriend">Remover Amigo</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -272,4 +304,27 @@ function clan_pic_url(name) {
 .tab-btn.active { color: #818cf8; border-bottom-color: #818cf8; }
 
 .border-white-5 { border-color: rgba(255, 255, 255, 0.05) !important; }
+
+.custom-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+}
+.custom-modal-content {
+  width: 90%;
+  max-width: 400px;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px !important;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
 </style>

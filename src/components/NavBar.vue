@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useNotificationStore } from '../stores/notificationStore'
+import { encodeId } from '../utils/obfuscator'
 
 const router = useRouter()
 const notifStore = useNotificationStore()
@@ -31,6 +32,18 @@ async function handleAction(notif, action) {
   if (success) {
     // Feedback visual opcional
   }
+}
+
+async function clickNotification(notif) {
+  await notifStore.markAsRead(notif.notif_id)
+
+  if (notif.notif_type === 'friend_request' || notif.notif_type === 'friend_accepted') {
+    router.push('/user/' + encodeId(notif.sender_id))
+  } else if (notif.notif_type === 'clan_request' || notif.notif_type === 'clan_accepted' || notif.notif_type === 'clan_join') {
+    router.push('/clan/' + encodeId(notif.reference_id))
+  }
+
+  showDropdown.value = false
 }
 
 function avatar_url(name) {
@@ -100,7 +113,7 @@ function logout() {
               <div class="dropdown-header d-flex justify-content-between align-items-center">
                 <span class="fw-bold">Notificações</span>
                 <div class="d-flex align-items-center gap-2">
-                  <button v-if="notifStore.unreadCount > 0" class="btn btn-link text-decoration-none text-muted extra-small p-0 hover-white" @click="notifStore.clearNotifications()">
+                  <button v-if="notifStore.notifications.length > 0" class="btn btn-link text-decoration-none text-muted extra-small p-0 hover-white" @click="notifStore.clearNotifications()">
                     Limpar tudo
                   </button>
                   <span class="badge bg-primary rounded-pill">{{ notifStore.unreadCount }}</span>
@@ -113,7 +126,7 @@ function logout() {
                   <p>Nenhuma notificação nova</p>
                 </div>
 
-                <div v-else v-for="notif in notifStore.notifications" :key="notif.notif_id" class="notif-item p-3 d-flex align-items-center gap-3 border-bottom border-white-50">
+                <div v-else v-for="notif in notifStore.notifications" :key="notif.notif_id" class="notif-item p-3 d-flex align-items-center gap-3 border-bottom border-white-50" @click="clickNotification(notif)" style="cursor: pointer;">
                   <img :src="avatar_url(notif.user_notification_sender_idTouser.first_name + (notif.user_notification_sender_idTouser.last_name ? ' ' + notif.user_notification_sender_idTouser.last_name : ''))" class="notif-avatar" alt="User">
                   <div class="flex-grow-1 text-start">
                     <p class="mb-0 text-white small" v-if="notif.notif_type === 'friend_request'">
@@ -141,14 +154,6 @@ function logout() {
                       Notificação de <strong>{{ notif.user_notification_sender_idTouser.first_name }}</strong>.
                     </p>
                     <span class="text-muted extra-small d-block">{{ new Date(notif.created_at).toLocaleTimeString() }}</span>
-                  </div>
-                  <div class="d-flex gap-1" v-if="notif.notif_type === 'friend_request' || notif.notif_type === 'clan_request'">
-                    <button class="btn btn-xs btn-success" @click="handleAction(notif, 'accept')">
-                      <i class="bi bi-check-lg"></i>
-                    </button>
-                    <button class="btn btn-xs btn-danger" @click="handleAction(notif, 'reject')">
-                      <i class="bi bi-x-lg"></i>
-                    </button>
                   </div>
                 </div>
               </div>

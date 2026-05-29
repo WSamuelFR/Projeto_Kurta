@@ -74,9 +74,6 @@ function avatar_url(name) {
           <button class="action-link" @click="showReplyInput = !showReplyInput">
             <i class="bi bi-chat-dots"></i> Responder
           </button>
-          <button class="action-link">
-             <i class="bi bi-heart"></i> Curtir
-          </button>
         </div>
 
         <!-- Input de Resposta -->

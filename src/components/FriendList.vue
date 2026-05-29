@@ -9,6 +9,8 @@ const props = defineProps({
 
 const friends = ref([])
 const loading = ref(true)
+const showUnfriendModal = ref(false)
+const friendIdToUnfriend = ref(null)
 
 onMounted(fetchFriends)
 
@@ -27,12 +29,20 @@ async function fetchFriends() {
   }
 }
 
-async function removeFriend(friendId) {
+function requestRemoveFriend(friendId) {
+  friendIdToUnfriend.value = friendId
+  showUnfriendModal.value = true
+}
+
+async function confirmUnfriend() {
+  showUnfriendModal.value = false
+  if (!friendIdToUnfriend.value) return
+
   const user = JSON.parse(localStorage.getItem('fellit_user') || '{}')
   try {
     const res = await axios.post('/api/profile/remove-friend', {
       user_id: user.id,
-      friend_id: friendId
+      friend_id: friendIdToUnfriend.value
     })
     if (res.data.status === 'success') {
       window.$toast.add('Amizade removida.', 'success')
@@ -40,6 +50,8 @@ async function removeFriend(friendId) {
     }
   } catch (err) {
     window.$toast.add('Erro ao remover amigo.', 'error')
+  } finally {
+    friendIdToUnfriend.value = null
   }
 }
 
@@ -68,9 +80,21 @@ function avatar_url(name) {
             </router-link>
             <span class="text-muted small">Amigo</span>
           </div>
-          <button class="btn btn-sm btn-outline-danger" @click="removeFriend(friend.user_id)">
+          <button class="btn btn-sm btn-outline-danger" @click="requestRemoveFriend(friend.user_id)">
             <i class="bi bi-person-x"></i>
           </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Confirmação para Desfazer Amizade -->
+    <div v-if="showUnfriendModal" class="custom-modal-overlay">
+      <div class="custom-modal-content glass-card p-4 animate__animated animate__zoomIn">
+        <h5 class="text-white fw-bold mb-3">Desfazer Amizade?</h5>
+        <p class="text-white-50 small mb-4">Tem certeza que deseja remover esta pessoa da sua lista de amigos? Vocês não estarão mais conectados.</p>
+        <div class="d-flex justify-content-center gap-3">
+          <button class="btn btn-sm btn-outline-secondary px-3 py-2 rounded-3 text-white" @click="showUnfriendModal = false">Cancelar</button>
+          <button class="btn btn-sm btn-danger px-3 py-2 rounded-3" @click="confirmUnfriend">Remover Amigo</button>
         </div>
       </div>
     </div>
@@ -98,5 +122,28 @@ function avatar_url(name) {
 }
 .hover-primary:hover {
   color: #6366f1 !important;
+}
+
+.custom-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+}
+.custom-modal-content {
+  width: 90%;
+  max-width: 400px;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px !important;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5);
+  text-align: center;
 }
 </style>

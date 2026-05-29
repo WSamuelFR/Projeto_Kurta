@@ -6,7 +6,8 @@ import ToastProvider from './components/ToastProvider.vue'
 
 const route = useRoute()
 const showNavBar = computed(() => {
-  return !['login', 'register'].includes(route.name)
+  const hasToken = localStorage.getItem('fellit_token')
+  return !['login', 'register'].includes(route.name) && hasToken
 })
 </script>
 

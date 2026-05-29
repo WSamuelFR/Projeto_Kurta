@@ -21,7 +21,8 @@ async function toggleLike() {
   try {
     const res = await axios.post('/api/feelings/like', {
       feeling_id: props.post.feeling_id,
-      user_id: user.id
+      user_id: user.id,
+      is_clan: !!props.post.cla_id
     })
     if (res.data.status === 'success') {
       if (res.data.action === 'liked') {
@@ -107,7 +108,7 @@ function formatDate(dateStr) {
 
     <!-- Comments Section -->
     <div v-if="showComments" class="comment-area-wrapper border-top border-white-5 animate__animated animate__slideInDown">
-      <CommentSection :feeling-id="post.feeling_id" />
+      <CommentSection :feeling-id="post.feeling_id" :is-clan="!!post.cla_id" />
     </div>
 
     <!-- Modals -->

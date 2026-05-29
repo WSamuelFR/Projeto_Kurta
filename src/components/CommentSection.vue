@@ -4,7 +4,8 @@ import axios from 'axios'
 import CommentItem from './CommentItem.vue'
 
 const props = defineProps({
-  feelingId: Number
+  feelingId: Number,
+  isClan: Boolean
 })
 
 const comments = ref([])
@@ -17,7 +18,7 @@ onMounted(fetchComments)
 async function fetchComments() {
   try {
     const res = await axios.get('/api/comments', {
-      params: { feeling_id: props.feelingId }
+      params: { feeling_id: props.feelingId, is_clan: props.isClan }
     })
     if (res.data.status === 'success') {
       comments.value = buildTree(res.data.data)
@@ -65,7 +66,8 @@ async function sendComment() {
     const res = await axios.post('/api/comments/add', {
       feeling_id: props.feelingId,
       user_id: user.id,
-      coment: newComment.value
+      coment: newComment.value,
+      is_clan: props.isClan
     })
     
     if (res.data.status === 'success') {
@@ -118,6 +120,7 @@ async function sendComment() {
         :key="comment.coment_id" 
         :comment="comment" 
         :feeling-id="feelingId"
+        :is-clan="isClan"
         @refresh="fetchComments"
       />
     </div>

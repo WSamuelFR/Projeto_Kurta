@@ -139,5 +139,47 @@ CREATE TABLE `friendship` (
     CONSTRAINT `friendship_receiver_fkey` FOREIGN KEY (`receiver_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE `clan_feeling` (
+    `feeling_id` INT NOT NULL AUTO_INCREMENT,
+    `feeling` TEXT NOT NULL,
+    `user` INT NOT NULL,
+    `visibility` VARCHAR(191) NULL DEFAULT 'public',
+    `cla_id` INT NOT NULL,
+    `created_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`feeling_id`),
+    INDEX `clan_feeling_user_idx` (`user`),
+    INDEX `clan_feeling_clan_idx` (`cla_id`),
+    CONSTRAINT `clan_feeling_user_fkey` FOREIGN KEY (`user`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `clan_feeling_clan_fkey` FOREIGN KEY (`cla_id`) REFERENCES `clan` (`clan_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `clan_likes` (
+    `like_id` INT NOT NULL AUTO_INCREMENT,
+    `user_id` INT NOT NULL,
+    `feeling_id` INT NOT NULL,
+    `created_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`like_id`),
+    UNIQUE INDEX `clan_likes_unique` (`user_id`, `feeling_id`),
+    INDEX `clan_likes_feeling_idx` (`feeling_id`),
+    CONSTRAINT `clan_likes_user_fkey` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `clan_likes_feeling_fkey` FOREIGN KEY (`feeling_id`) REFERENCES `clan_feeling` (`feeling_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `clan_coments` (
+    `coment_id` INT NOT NULL AUTO_INCREMENT,
+    `coment` TEXT NULL,
+    `user` INT NOT NULL,
+    `feeling` INT NOT NULL,
+    `created_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+    `parent_id` INT NULL,
+    PRIMARY KEY (`coment_id`),
+    INDEX `clan_coments_user_idx` (`user`),
+    INDEX `clan_coments_feeling_idx` (`feeling`),
+    INDEX `clan_coments_parent_idx` (`parent_id`),
+    CONSTRAINT `clan_coments_user_fkey` FOREIGN KEY (`user`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `clan_coments_feeling_fkey` FOREIGN KEY (`feeling`) REFERENCES `clan_feeling` (`feeling_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `clan_coments_parent_fkey` FOREIGN KEY (`parent_id`) REFERENCES `clan_coments` (`coment_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Reativa verificações
 SET FOREIGN_KEY_CHECKS = 1;

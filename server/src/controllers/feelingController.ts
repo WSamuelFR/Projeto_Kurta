@@ -79,15 +79,26 @@ export const createFeeling = async (req: Request, res: Response) => {
   }
 
   try {
-    const newFeeling = await prisma.feeling.create({
-      data: {
-        feeling,
-        user: u_id,
-        visibility: visibility || 'public',
-        cla_id: clan_id ? parseInt(clan_id) : null
-      }
-    });
-    res.json({ status: 'success', data: newFeeling });
+    if (clan_id) {
+      const newFeeling = await prisma.clan_feeling.create({
+        data: {
+          feeling,
+          user: u_id,
+          visibility: visibility || 'public',
+          cla_id: parseInt(clan_id)
+        }
+      });
+      res.json({ status: 'success', data: newFeeling });
+    } else {
+      const newFeeling = await prisma.feeling.create({
+        data: {
+          feeling,
+          user: u_id,
+          visibility: visibility || 'public'
+        }
+      });
+      res.json({ status: 'success', data: newFeeling });
+    }
   } catch (error) {
     console.error('Erro ao criar feeling:', error);
     res.status(500).json({ status: 'error', message: 'Erro interno ao postar sentimento.' });
@@ -95,25 +106,40 @@ export const createFeeling = async (req: Request, res: Response) => {
 };
 
 export const toggleLike = async (req: Request, res: Response) => {
-  const { feeling_id, user_id } = req.body;
+  const { feeling_id, user_id, is_clan } = req.body;
   const f_id = parseInt(feeling_id);
   const u_id = parseInt(user_id);
+  const isClan = !!is_clan;
 
   if (u_id !== (req as any).user.userId) {
     return res.status(403).json({ status: 'error', message: 'Não autorizado.' });
   }
 
   try {
-    const existingLike = await prisma.likes.findFirst({
-      where: { feeling_id: f_id, user_id: u_id }
-    });
+    if (isClan) {
+      const existingLike = await prisma.clan_likes.findFirst({
+        where: { feeling_id: f_id, user_id: u_id }
+      });
 
-    if (existingLike) {
-      await prisma.likes.delete({ where: { like_id: existingLike.like_id } });
-      res.json({ status: 'success', action: 'unliked' });
+      if (existingLike) {
+        await prisma.clan_likes.delete({ where: { like_id: existingLike.like_id } });
+        res.json({ status: 'success', action: 'unliked' });
+      } else {
+        await prisma.clan_likes.create({ data: { feeling_id: f_id, user_id: u_id } });
+        res.json({ status: 'success', action: 'liked' });
+      }
     } else {
-      await prisma.likes.create({ data: { feeling_id: f_id, user_id: u_id } });
-      res.json({ status: 'success', action: 'liked' });
+      const existingLike = await prisma.likes.findFirst({
+        where: { feeling_id: f_id, user_id: u_id }
+      });
+
+      if (existingLike) {
+        await prisma.likes.delete({ where: { like_id: existingLike.like_id } });
+        res.json({ status: 'success', action: 'unliked' });
+      } else {
+        await prisma.likes.create({ data: { feeling_id: f_id, user_id: u_id } });
+        res.json({ status: 'success', action: 'liked' });
+      }
     }
   } catch (error) {
     res.status(500).json({ status: 'error', message: 'Erro ao processar like.' });
@@ -201,7 +227,7 @@ export const getClanFeelings = async (req: Request, res: Response) => {
     }
 
     // 1. Buscar sentimentos do clã
-    const feelings = await prisma.feeling.findMany({
+    const feelings = await prisma.clan_feeling.findMany({
       where: { cla_id: c_id },
       orderBy: { created_at: 'desc' }
     });
@@ -214,9 +240,9 @@ export const getClanFeelings = async (req: Request, res: Response) => {
     // 2. Buscar dados auxiliares em massa
     const [users, allLikes, allComments, myLikes] = await Promise.all([
       prisma.users.findMany({ where: { user_id: { in: userIds } } }),
-      prisma.likes.groupBy({ by: ['feeling_id'], _count: true, where: { feeling_id: { in: feelingIds } } }),
-      prisma.coments.groupBy({ by: ['feeling'], _count: true, where: { feeling: { in: feelingIds } } }),
-      prisma.likes.findMany({ where: { feeling_id: { in: feelingIds }, user_id: visitorId } })
+      prisma.clan_likes.groupBy({ by: ['feeling_id'], _count: true, where: { feeling_id: { in: feelingIds } } }),
+      prisma.clan_coments.groupBy({ by: ['feeling'], _count: true, where: { feeling: { in: feelingIds } } }),
+      prisma.clan_likes.findMany({ where: { feeling_id: { in: feelingIds }, user_id: visitorId } })
     ]);
 
     const userMap = Object.fromEntries(users.map(u => [u.user_id, u]));

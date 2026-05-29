@@ -85,11 +85,7 @@ function showAlert(message, type) {
             </div>
           </div>
 
-          <div class="d-flex justify-content-between align-items-center mb-5 px-1">
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="remember">
-              <label class="form-check-label small text-white-50" for="remember">Lembrar de mim</label>
-            </div>
+          <div class="d-flex justify-content-end align-items-center mb-5 px-1">
             <a href="#" class="forgot-link small">Esqueceu?</a>
           </div>
 

@@ -69,7 +69,7 @@ function logout() {
         </div>
 
         <!-- Links de Navegação Desktop (Novo) -->
-        <div class="d-none d-md-flex align-items-center gap-4 mx-auto desktop-nav">
+        <div class="d-none d-lg-flex align-items-center gap-4 mx-auto desktop-nav">
           <router-link to="/home" class="nav-link-premium">
             <i class="bi bi-house-door-fill me-1"></i>Início
           </router-link>
@@ -146,7 +146,7 @@ function logout() {
     </nav>
 
     <!-- Bottom Navigation Bar (Visible only on mobile/tablet) -->
-    <div class="bottom-nav d-md-none">
+    <div class="bottom-nav d-lg-none">
       <router-link to="/home" class="bottom-nav-item">
         <i class="bi bi-house-door-fill"></i>
         <span>Início</span>

@@ -26,7 +26,7 @@ body {
   color: white;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   body {
     padding-bottom: 75px;
   }

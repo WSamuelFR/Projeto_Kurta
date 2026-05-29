@@ -16,6 +16,7 @@ model clan {
   created_at             DateTime?     @default(now())
   clan_member            clan_member[]
   feeling                feeling[]
+  clan_feeling           clan_feeling[]
   share_share_clanToclan share[]       @relation("share_clanToclan")
 }
 
@@ -127,6 +128,9 @@ model users {
   clan_member                               clan_member[]
   coments_coments_userTouser                coments[]      @relation("coments_userTouser")
   feeling_feeling_userTouser                feeling[]      @relation("feeling_userTouser")
+  clan_feeling_clan_feeling_userTouser      clan_feeling[] @relation("clan_feeling_userTouser")
+  clan_coments_clan_coments_userTouser      clan_coments[] @relation("clan_coments_userTouser")
+  clan_likes                                clan_likes[]
   friendship_friendship_receiver_idTouser   friendship[]   @relation("friendship_receiver_idTouser")
   friendship_friendship_sender_idTouser     friendship[]   @relation("friendship_sender_idTouser")
   likes                                     likes[]
@@ -136,4 +140,41 @@ model users {
   share_share_userTouser                    share[]        @relation("share_userTouser")
 
   @@map("users")
+}
+
+model clan_feeling {
+  feeling_id                            Int            @id @default(autoincrement())
+  feeling                               String
+  user                                  Int
+  visibility                            String?        @default("public")
+  cla_id                                Int
+  created_at                            DateTime?      @default(now())
+  clan_coments                          clan_coments[]
+  clan                                  clan           @relation(fields: [cla_id], references: [clan_id], onDelete: Cascade, onUpdate: NoAction)
+  user_clan_feeling_userTouser          users          @relation("clan_feeling_userTouser", fields: [user], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  clan_likes                            clan_likes[]
+}
+
+model clan_likes {
+  like_id      Int          @id @default(autoincrement())
+  user_id      Int
+  feeling_id   Int
+  created_at   DateTime?    @default(now())
+  clan_feeling clan_feeling @relation(fields: [feeling_id], references: [feeling_id], onDelete: Cascade, onUpdate: NoAction)
+  user         users        @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([user_id, feeling_id], map: "sqlite_autoindex_clan_likes_1")
+}
+
+model clan_coments {
+  coment_id                             Int          @id @default(autoincrement())
+  coment                                String?
+  user                                  Int
+  feeling                               Int
+  created_at                            DateTime?    @default(now())
+  parent_id                             Int?
+  clan_feeling                          clan_feeling @relation(fields: [feeling], references: [feeling_id], onDelete: Cascade, onUpdate: NoAction)
+  user_clan_coments_userTouser          users        @relation("clan_coments_userTouser", fields: [user], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  clan_coments                          clan_coments? @relation("clan_comentsToclan_coments", fields: [parent_id], references: [coment_id], onDelete: Cascade, onUpdate: NoAction)
+  other_clan_coments                    clan_coments[] @relation("clan_comentsToclan_coments")
 }

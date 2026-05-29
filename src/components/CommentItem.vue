@@ -4,7 +4,8 @@ import axios from 'axios'
 
 const props = defineProps({
   comment: Object,
-  feelingId: Number
+  feelingId: Number,
+  isClan: Boolean
 })
 
 const emit = defineEmits(['refresh'])
@@ -28,7 +29,8 @@ async function sendReply() {
       feeling_id: props.feelingId,
       user_id: user.id,
       coment: replyText.value,
-      parent_id: props.comment.coment_id
+      parent_id: props.comment.coment_id,
+      is_clan: props.isClan
     })
     
     if (res.data.status === 'success') {
@@ -100,6 +102,7 @@ function avatar_url(name) {
             :key="reply.coment_id" 
             :comment="reply" 
             :feeling-id="feelingId"
+            :is-clan="isClan"
             @refresh="emit('refresh')"
           />
         </div>

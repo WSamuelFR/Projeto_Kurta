@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import { encodeId } from '../utils/obfuscator'
 
 const router = useRouter()
 const loading = ref(false)
@@ -18,7 +19,7 @@ const clanForm = ref({
   visibility: 'public'
 })
 
-async function fundarImperio() {
+async function criarClan() {
   if (!clanForm.value.name) {
     window.$toast.add('Por favor, dê um nome épico ao seu clã!', 'error')
     return
@@ -34,14 +35,14 @@ async function fundarImperio() {
     })
     
     if (res.data.status === 'success') {
-      window.$toast.add('Seu império foi fundado com glória!', 'success')
-      router.push(`/clan/${res.data.data.clan_id}`)
+      window.$toast.add('Seu clã foi criado com sucesso!', 'success')
+      router.push(`/clan/${encodeId(res.data.data.clan_id)}`)
     } else {
       window.$toast.add(res.data.message || 'Erro ao criar clã.', 'error')
     }
   } catch (err) {
     console.error(err)
-    window.$toast.add('Erro ao fundar o império.', 'error')
+    window.$toast.add('Erro ao criar o clã.', 'error')
   } finally {
     loading.value = false
   }
@@ -64,17 +65,17 @@ async function fundarImperio() {
               <div class="icon-badge mb-3">
                 <i class="bi bi-shield-shaded"></i>
               </div>
-              <h1 class="text-white fw-bold display-6">Novo Império</h1>
-              <p class="text-white-50">Dê vida a uma nova união no fell.it.</p>
+              <h1 class="text-white fw-bold display-6">Novo Clã</h1>
+              <p class="text-white-50">Crie uma nova comunidade no fell.it.</p>
             </div>
 
-            <form @submit.prevent="fundarImperio" class="modern-form">
+            <form @submit.prevent="criarClan" class="modern-form">
               <!-- Brasão Automático (Preview) -->
               <div class="text-center mb-4">
                 <div class="brasao-preview shadow-lg">
-                  <img :src="`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(clanForm.name || 'Clan')}&backgroundColor=1e293b`" class="preview-img" alt="Brasão">
+                  <img :src="`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(clanForm.name || 'Clan')}&backgroundColor=1e293b`" class="preview-img" alt="Logo">
                 </div>
-                <span class="d-block small text-white-50 mt-2">Brasão Automático</span>
+                <span class="d-block small text-white-50 mt-2">Logo do Clã</span>
               </div>
 
               <!-- Inputs -->
@@ -106,7 +107,7 @@ async function fundarImperio() {
               </div>
 
               <button type="submit" class="btn-premium-action w-100" :disabled="loading">
-                <span v-if="!loading">FUNDAR CLÃ</span>
+                <span v-if="!loading">CRIAR CLÃ</span>
                 <span v-else class="spinner-border spinner-border-sm"></span>
               </button>
 

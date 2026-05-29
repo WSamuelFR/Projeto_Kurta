@@ -3,6 +3,7 @@ import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
 import PostCard from '../components/PostCard.vue'
+import { encodeId } from '../utils/obfuscator'
 
 const route = useRoute()
 const query = ref(route.query.q || '')
@@ -96,7 +97,7 @@ function clan_pic_url(name) {
                   <h6 class="text-white mb-0 fw-bold">{{ user.first_name }} {{ user.last_name }}</h6>
                   <span class="text-muted small">Usuário fell.it</span>
                 </div>
-                <router-link :to="'/user/' + user.user_id" class="btn btn-sm btn-outline-primary rounded-pill">Ver Perfil</router-link>
+                <router-link :to="'/user/' + encodeId(user.user_id)" class="btn btn-sm btn-outline-primary rounded-pill">Ver Perfil</router-link>
               </div>
             </div>
           </div>
@@ -114,7 +115,7 @@ function clan_pic_url(name) {
                   <h6 class="text-white mb-0 fw-bold">{{ clan.name_clan }}</h6>
                   <p class="text-muted small mb-0 text-truncate" style="max-width: 150px;">{{ clan.description }}</p>
                 </div>
-                <router-link :to="'/clan/' + clan.clan_id" class="btn btn-sm btn-primary rounded-pill">Entrar</router-link>
+                <router-link :to="'/clan/' + encodeId(clan.clan_id)" class="btn btn-sm btn-primary rounded-pill">Entrar</router-link>
               </div>
             </div>
           </div>

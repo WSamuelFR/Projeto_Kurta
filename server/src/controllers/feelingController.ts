@@ -264,9 +264,9 @@ export const getTrendingFeelings = async (req: Request, res: Response) => {
     }));
 
     formatted.sort((a, b) => (b.total_likes + b.total_comments) - (a.total_likes + a.total_comments));
-    const top3 = formatted.slice(0, 3);
+    const top5 = formatted.slice(0, 5);
 
-    res.json({ status: 'success', data: top3 });
+    res.json({ status: 'success', data: top5 });
   } catch (error: any) {
     console.error('ERRO FATAL NO TRENDING:', error);
     res.status(500).json({ status: 'error', message: 'Erro no trending: ' + error.message });

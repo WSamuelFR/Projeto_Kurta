@@ -12,8 +12,8 @@ import ClanList from '../components/ClanList.vue'
               <div class="icon-box mb-3">
                 <i class="bi bi-shield-shaded"></i>
               </div>
-              <h1 class="text-white fw-bold">Impérios do fell.it</h1>
-              <p class="text-white-50">Encontre o seu lugar, lute por um ideal, junte-se a um clã.</p>
+              <h1 class="text-white fw-bold">Clãs do fell.it</h1>
+              <p class="text-white-50">Encontre a sua comunidade, compartilhe sentimentos e faça parte de um clã.</p>
             </div>
             
             <ClanList />

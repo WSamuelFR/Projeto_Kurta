@@ -3,10 +3,11 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import PostCard from '../components/PostCard.vue'
+import { encodeId, decodeId } from '../utils/obfuscator'
 
 const route = useRoute()
 const router = useRouter()
-const clanId = route.params.id
+const clanId = decodeId(route.params.id)
 
 const clan = ref(null)
 const members = ref([])
@@ -122,9 +123,9 @@ function clan_pic_url(name) {
 }
 
 function getRoleBadge(role) {
-  if (role === 'rei') return { label: 'REI', class: 'bg-warning' }
-  if (role === 'lider') return { label: 'LÍDER', class: 'bg-info' }
-  return { label: 'ALDEÃO', class: 'bg-secondary' }
+  if (role === 'rei') return { label: 'Fundador', class: 'bg-warning' }
+  if (role === 'lider') return { label: 'Administrador', class: 'bg-info' }
+  return { label: 'Membro', class: 'bg-secondary' }
 }
 </script>
 
@@ -186,7 +187,7 @@ function getRoleBadge(role) {
                 </div>
 
                 <div class="clan-actions-wrapper mt-4 pt-3 border-top border-white-5">
-                  <router-link v-if="viewerRole === 'rei'" :to="`/clan/${clanId}/manage`" class="btn-premium-outline w-100 d-block text-center mb-2">
+                  <router-link v-if="viewerRole === 'rei'" :to="`/clan/${encodeId(clanId)}/manage`" class="btn-premium-outline w-100 d-block text-center mb-2">
                     <i class="bi bi-gear-fill me-2"></i>Gerenciar Clã
                   </router-link>
                   <button 
@@ -262,7 +263,7 @@ function getRoleBadge(role) {
 
             <!-- Feed do Clã -->
             <div class="clan-feed mb-4">
-               <h5 class="fw-bold text-white mb-4 text-start"><i class="bi bi-chat-left-dots-fill me-2 text-primary"></i>Histórias do Império</h5>
+               <h5 class="fw-bold text-white mb-4 text-start"><i class="bi bi-chat-left-dots-fill me-2 text-primary"></i>Mural do Clã</h5>
                <div v-if="feelings.length > 0">
                  <div v-for="post in feelings" :key="post.feeling_id" class="mb-4 text-start">
                     <PostCard :post="post" />
@@ -279,7 +280,7 @@ function getRoleBadge(role) {
             <div class="glass-card p-4 sticky-top" style="top: 100px;">
               <div class="d-flex justify-content-between align-items-center mb-4">
                 <h5 class="fw-bold text-white mb-0"><i class="bi bi-people-fill me-2 text-primary"></i>Integrantes</h5>
-                <span class="text-muted small">{{ members.length }} guerreiros</span>
+                <span class="text-muted small">{{ members.length }} membros</span>
               </div>
               
               <div class="member-grid">
@@ -287,14 +288,14 @@ function getRoleBadge(role) {
                   <div class="d-flex align-items-center gap-3">
                     <img :src="avatar_url(member.first_name + (member.last_name ? ' ' + member.last_name : ''))" class="member-avatar" alt="Avatar">
                     <div class="flex-grow-1 text-start overflow-hidden">
-                      <router-link :to="`/user/${member.user_id}`" class="member-name-link">
+                      <router-link :to="`/user/${encodeId(member.user_id)}`" class="member-name-link">
                         <h6 class="mb-0 text-white fw-bold text-truncate">{{ member.first_name }} {{ member.last_name }}</h6>
                       </router-link>
                       <span class="role-badge" :class="getRoleBadge(member.role).class">
                         {{ getRoleBadge(member.role).label }}
                       </span>
                     </div>
-                    <router-link :to="`/user/${member.user_id}`" class="btn-view-member ms-auto">
+                    <router-link :to="`/user/${encodeId(member.user_id)}`" class="btn-view-member ms-auto">
                       <i class="bi bi-arrow-right"></i>
                     </router-link>
                   </div>

@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import { encodeId } from '../utils/obfuscator'
 
 const clans = ref([])
 const loading = ref(true)
@@ -87,7 +88,7 @@ function clan_pic_url(name) {
           <img :src="clan_pic_url(clan.name_clan)" class="clan-avatar" alt="Clan">
           <div class="flex-grow-1 overflow-hidden text-start">
             <h6 class="mb-0 text-white text-truncate">{{ clan.name_clan }}</h6>
-            <span class="text-muted small">👥 {{ clan.total_membros }} vivos</span>
+            <span class="text-muted small">👥 {{ clan.total_membros }} membros</span>
           </div>
           <div class="actions">
             <button 
@@ -95,7 +96,7 @@ function clan_pic_url(name) {
               class="btn btn-sm btn-primary"
               @click="joinClan(clan.clan_id)"
             >Entrar</button>
-            <router-link :to="`/clan/${clan.clan_id}`" class="btn btn-sm btn-outline-light">Ver</router-link>
+            <router-link :to="`/clan/${encodeId(clan.clan_id)}`" class="btn btn-sm btn-outline-light">Ver</router-link>
           </div>
         </div>
       </div>

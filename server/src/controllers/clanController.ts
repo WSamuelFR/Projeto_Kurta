@@ -202,7 +202,7 @@ export const updateClan = async (req: Request, res: Response) => {
       where: { clan_id: c_id, user_id: authenticatedUserId }
     });
     if (!member || member.role !== 'rei') {
-      return res.status(403).json({ status: 'error', message: 'Apenas o Rei do clã pode atualizar os dados.' });
+      return res.status(403).json({ status: 'error', message: 'Apenas o criador do clã pode atualizar os dados.' });
     }
 
     const updated = await prisma.clan.update({
@@ -226,7 +226,7 @@ export const changeRole = async (req: Request, res: Response) => {
       where: { clan_id: c_id, user_id: authenticatedUserId }
     });
     if (!member || member.role !== 'rei') {
-      return res.status(403).json({ status: 'error', message: 'Apenas o Rei do clã pode alterar cargos.' });
+      return res.status(403).json({ status: 'error', message: 'Apenas o criador do clã pode alterar cargos.' });
     }
 
     await prisma.clan_member.updateMany({
@@ -251,7 +251,7 @@ export const removeMember = async (req: Request, res: Response) => {
         where: { clan_id: c_id, user_id: authenticatedUserId }
       });
       if (!member || member.role !== 'rei') {
-        return res.status(403).json({ status: 'error', message: 'Apenas o Rei do clã pode remover membros.' });
+        return res.status(403).json({ status: 'error', message: 'Apenas o criador do clã pode remover membros.' });
       }
     }
 

@@ -21,9 +21,7 @@ const user = ref({
 
 const editedUser = ref({ ...user.value, password: '' })
 const avatarPreview = ref(null)
-const wallpaperPreview = ref(null)
 const avatarFile = ref(null)
-const wallpaperFile = ref(null)
 
 const loading = ref(true)
 const saving = ref(false)
@@ -115,9 +113,7 @@ async function shareFeeling() {
 function resetEdit() {
   editedUser.value = { ...user.value, password: '' }
   avatarPreview.value = null
-  wallpaperPreview.value = null
   avatarFile.value = null
-  wallpaperFile.value = null
 }
 
 function onFileChange(type, e) {
@@ -129,9 +125,6 @@ function onFileChange(type, e) {
     if (type === 'avatar') {
       avatarPreview.value = event.target.result
       avatarFile.value = file
-    } else {
-      wallpaperPreview.value = event.target.result
-      wallpaperFile.value = file
     }
   }
   reader.readAsDataURL(file)
@@ -147,7 +140,6 @@ async function saveChanges() {
   formData.append('password', editedUser.value.password || '')
   
   if (avatarFile.value) formData.append('avatar', avatarFile.value)
-  if (wallpaperFile.value) formData.append('wallpaper', wallpaperFile.value)
 
   try {
     const res = await axios.post('/api/profile/update', formData, {
@@ -179,9 +171,7 @@ function formatDate(dateStr) {
 function avatar_pic_url(name) {
   return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name || 'User')}&backgroundColor=00897b,1e88e5,5e35b1,d81b60,f4511e`
 }
-function wallpaper_pic_url(path) {
-  return path ? `/${path}` : 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2029'
-}
+
 </script>
 
 <template>
@@ -191,13 +181,8 @@ function wallpaper_pic_url(path) {
     </div>
 
     <template v-else>
-      <!-- Header: Wallpaper + Avatar -->
-      <div class="profile-header">
-        <div class="wallpaper-area">
-          <img :src="wallpaper_pic_url(user.wallpaper_pic)" alt="Cover" class="wallpaper-img">
-          <div class="wallpaper-mask"></div>
-        </div>
-        
+      <!-- Header: Avatar + Meta -->
+      <div class="profile-header py-5 border-bottom border-white-5">
         <div class="container header-content">
           <div class="avatar-container">
             <img :src="avatar_pic_url(user.first_name + (user.last_name ? ' ' + user.last_name : ''))" alt="Avatar" class="avatar-img shadow-lg">
@@ -375,53 +360,13 @@ function wallpaper_pic_url(path) {
 /* Header */
 .profile-header {
   position: relative;
-  background: #1e293b;
-}
-
-.wallpaper-area {
-  height: 320px;
-  position: relative;
-  overflow: hidden;
-}
-
-.wallpaper-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.wallpaper-mask {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(to bottom, transparent, rgba(5, 8, 16, 1));
-}
-
-.btn-edit-header {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: white;
-  z-index: 10;
+  background: rgba(15, 23, 42, 0.4);
 }
 
 .header-content {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: 2rem;
-  margin-top: -80px;
   position: relative;
   z-index: 2;
 }
@@ -666,9 +611,7 @@ function wallpaper_pic_url(path) {
     flex-direction: column;
     align-items: center;
     gap: 1.5rem;
-    margin-top: -100px;
   }
   .user-name { font-size: 2rem; }
-  .wallpaper-area { height: 250px; }
 }
 </style>

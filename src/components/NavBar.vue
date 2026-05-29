@@ -169,6 +169,10 @@ function logout() {
 
 <style scoped>
 .navbar {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  right: 0;
   background: rgba(15, 23, 42, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);

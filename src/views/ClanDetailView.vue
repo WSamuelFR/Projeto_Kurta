@@ -242,7 +242,7 @@ function getRoleBadge(role) {
                    <textarea 
                      v-model="newFeeling" 
                      class="clan-post-textarea" 
-                     :placeholder="'O que o clã ' + clan.name_clan + ' precisa saber?'"
+                     placeholder="O que o clã precisa saber?"
                      rows="3"
                    ></textarea>
                    <div class="d-flex justify-content-end mt-3">

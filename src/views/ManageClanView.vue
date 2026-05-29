@@ -2,10 +2,11 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
+import { encodeId, decodeId } from '../utils/obfuscator'
 
 const route = useRoute()
 const router = useRouter()
-const clanId = route.params.id
+const clanId = decodeId(route.params.id)
 
 const clan = ref(null)
 const members = ref([])
@@ -34,8 +35,8 @@ async function fetchClanAdminData() {
       
       // Check if user is the 'rei'
       if (resMembers.data.viewerRole !== 'rei') {
-        window.$toast.add('Acesso negado: Somente o Rei pode gerenciar o clã.', 'error')
-        router.push(`/clan/${clanId}`)
+        window.$toast.add('Acesso negado: Somente o Fundador/Criador pode gerenciar o clã.', 'error')
+        router.push(`/clan/${encodeId(clanId)}`)
       }
     }
   } catch (err) {
@@ -112,12 +113,12 @@ function clan_pic_url(name) {
       <!-- Header -->
       <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-4 mb-5 animate__animated animate__fadeIn">
         <div class="d-flex align-items-center gap-4">
-          <router-link :to="`/clan/${clanId}`" class="btn-back">
+          <router-link :to="`/clan/${encodeId(clanId)}`" class="btn-back">
             <i class="bi bi-chevron-left"></i>
           </router-link>
           <div>
             <h1 class="text-white fw-bold h3 mb-1">Gerenciamento do Clã</h1>
-            <p class="text-white-50 mb-0">Comande e organize seu império.</p>
+            <p class="text-white-50 mb-0">Gerencie e organize seu clã.</p>
           </div>
         </div>
         <div v-if="clan" class="clan-badge-mini">
@@ -146,7 +147,7 @@ function clan_pic_url(name) {
             </div>
 
             <div class="mb-4">
-              <label class="label-premium">Descrição do Império</label>
+              <label class="label-premium">Descrição do Clã</label>
               <div class="input-glass-wrapper py-2">
                 <textarea v-model="clan.description" rows="5"></textarea>
               </div>
@@ -183,7 +184,7 @@ function clan_pic_url(name) {
                   <div class="flex-grow-1">
                     <h6 class="text-white mb-1 fw-bold">{{ mem.first_name }} {{ mem.last_name }}</h6>
                     <span class="role-badge" :class="mem.role">
-                      {{ mem.role === 'rei' ? '👑 REI' : (mem.role === 'lider' ? '⚔️ LÍDER' : '🛡️ ALDEÃO') }}
+                      {{ mem.role === 'rei' ? '👑 Fundador' : (mem.role === 'lider' ? '⚔️ Administrador' : '🛡️ Membro') }}
                     </span>
                   </div>
                   
@@ -193,8 +194,8 @@ function clan_pic_url(name) {
                         <i class="bi bi-pencil-square"></i>
                       </button>
                       <ul class="dropdown-menu dropdown-menu-dark">
-                        <li><a class="dropdown-item" href="#" @click.prevent="updateRole(mem.user_id, 'lider')">Promover a Líder</a></li>
-                        <li><a class="dropdown-item" href="#" @click.prevent="updateRole(mem.user_id, 'aldeao')">Tornar Aldeão</a></li>
+                        <li><a class="dropdown-item" href="#" @click.prevent="updateRole(mem.user_id, 'lider')">Promover a Administrador</a></li>
+                        <li><a class="dropdown-item" href="#" @click.prevent="updateRole(mem.user_id, 'aldeao')">Tornar Membro</a></li>
                       </ul>
                     </div>
                     <button class="btn-action-sm delete" @click="removeMember(mem.user_id)">

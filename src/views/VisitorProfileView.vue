@@ -3,10 +3,11 @@ import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import PostCard from '../components/PostCard.vue'
+import { encodeId, decodeId } from '../utils/obfuscator'
 
 const route = useRoute()
 const router = useRouter()
-const userId = ref(route.params.id)
+const userId = ref(decodeId(route.params.id))
 const user = ref(null)
 const feelings = ref([])
 const userClans = ref([])
@@ -18,7 +19,7 @@ const friendshipId = ref(null)
 onMounted(fetchData)
 
 watch(() => route.params.id, (newId) => {
-  userId.value = newId
+  userId.value = decodeId(newId)
   fetchData()
 })
 
@@ -200,7 +201,7 @@ function wallpaper_url(path) {
                 <div v-if="activeTab === 'clans'">
                   <div v-if="userClans.length > 0" class="row g-3">
                     <div v-for="c in userClans" :key="c.clan_id" class="col-md-6">
-                       <router-link :to="'/clan/' + c.clan_id" class="text-decoration-none">
+                       <router-link :to="'/clan/' + encodeId(c.clan_id)" class="text-decoration-none">
                          <div class="result-card p-3 d-flex align-items-center gap-3">
                            <img :src="clan_pic_url(c.name_clan)" class="rounded-3 shadow" style="width: 50px; height: 50px; object-fit: cover;">
                            <div class="text-start flex-grow-1 overflow-hidden">

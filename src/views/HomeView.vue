@@ -95,18 +95,29 @@ function avatar_url(name) {
     <div class="container py-5">
       <div class="row g-4">
         <!-- Sidebar Left -->
-        <div class="col-lg-3 d-none d-lg-block">
+        <div class="col-lg-4 d-none d-lg-block">
           <div class="glass-card p-4 sticky-top" style="top: 100px;">
-            <div class="profile-mini text-center mb-0">
-              <img :src="avatar_url(user.first_name + (user.last_name ? ' ' + user.last_name : ''))" class="avatar-sm mb-3 shadow" alt="Me">
-              <h6 class="fw-bold text-white mb-0">{{ user.first_name }}</h6>
-              <p class="text-muted small mb-0">@{{ user.first_name?.toLowerCase() }}</p>
+            <h6 class="fw-bold text-white mb-4"><i class="bi bi-lightning-charge-fill text-warning me-2"></i>Feelings do Momento</h6>
+            <div class="trending-list d-flex flex-column gap-3">
+              <div v-for="(t, index) in trending" :key="t.feeling_id" class="trending-item d-flex align-items-center gap-3">
+                <div class="rank-number">{{ index + 1 }}</div>
+                <div class="flex-grow-1 overflow-hidden">
+                  <p class="mb-0 text-white small fw-bold text-truncate text-start">{{ t.feeling }}</p>
+                  <div class="d-flex gap-2 extra-small text-muted">
+                    <span><i class="bi bi-heart-fill text-danger me-1"></i>{{ t.total_likes }}</span>
+                    <span><i class="bi bi-chat-fill text-primary me-1"></i>{{ t.total_comments }}</span>
+                  </div>
+                </div>
+              </div>
+              <div v-if="trending.length === 0" class="empty-state py-3">
+                <p class="text-muted small italic">Nenhum assunto em alta no momento.</p>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Feed Center -->
-        <div class="col-lg-6 col-12">
+        <!-- Feed Center & Right -->
+        <div class="col-lg-8 col-12">
           <!-- Tabs para Mobile -->
           <div class="mobile-tabs-container d-lg-none d-flex mb-4">
             <button 
@@ -188,28 +199,6 @@ function avatar_url(name) {
                 <div v-if="trending.length === 0" class="empty-state py-3">
                   <p class="text-muted small italic">Nenhum assunto em alta no momento.</p>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Sidebar Right (Desktop) -->
-        <div class="col-lg-3 d-none d-lg-block">
-          <div class="glass-card p-4 sticky-top" style="top: 100px;">
-            <h6 class="fw-bold text-white mb-4"><i class="bi bi-lightning-charge-fill text-warning me-2"></i>Feelings do Momento</h6>
-            <div class="trending-list d-flex flex-column gap-3">
-              <div v-for="(t, index) in trending" :key="t.feeling_id" class="trending-item d-flex align-items-center gap-3">
-                <div class="rank-number">{{ index + 1 }}</div>
-                <div class="flex-grow-1 overflow-hidden">
-                  <p class="mb-0 text-white small fw-bold text-truncate text-start">{{ t.feeling }}</p>
-                  <div class="d-flex gap-2 extra-small text-muted">
-                    <span><i class="bi bi-heart-fill text-danger me-1"></i>{{ t.total_likes }}</span>
-                    <span><i class="bi bi-chat-fill text-primary me-1"></i>{{ t.total_comments }}</span>
-                  </div>
-                </div>
-              </div>
-              <div v-if="trending.length === 0" class="empty-state py-3">
-                <p class="text-muted small italic">Nenhum assunto em alta no momento.</p>
               </div>
             </div>
           </div>
@@ -341,6 +330,7 @@ function avatar_url(name) {
 
 .extra-small {
   font-size: 0.75rem;
+  color: #94a3b8 !important;
 }
 
 /* Mobile Tabs Styling */

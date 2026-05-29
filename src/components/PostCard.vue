@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import axios from 'axios'
 import CommentSection from './CommentSection.vue'
 import ShareModal from './ShareModal.vue'
+import { encodeId } from '../utils/obfuscator'
 
 const props = defineProps({
   post: Object
@@ -53,7 +54,7 @@ function formatDate(dateStr) {
     <div class="card-header-premium p-3 d-flex align-items-center gap-3">
       <img :src="avatar_url(post.first_name + (post.last_name ? ' ' + post.last_name : ''))" class="author-avatar shadow" alt="Avatar">
       <div class="flex-grow-1 text-start">
-        <router-link :to="'/user/' + post.user_id" class="author-name-link">
+        <router-link :to="'/user/' + encodeId(post.user_id)" class="author-name-link">
           <h6 class="mb-0 fw-bold">{{ post.first_name }} {{ post.last_name }}</h6>
         </router-link>
         <span class="text-muted extra-small">{{ formatDate(post.created_at) }}</span>

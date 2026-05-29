@@ -18,7 +18,7 @@ const posting = ref(false)
 const newFeeling = ref('')
 
 // Controle de abas no celular
-const activeMobileTab = ref('feed') // 'feed' ou 'about'
+const activeMobileTab = ref('feed') // 'feed', 'members', ou 'about'
 
 onMounted(async () => {
   await fetchClanData()
@@ -135,7 +135,7 @@ function getRoleBadge(role) {
     </div>
 
     <template v-else-if="clan">
-      <!-- Main Layout: 2 colunas, sem banner herói grande e igual ao feed da Home -->
+      <!-- Main Layout: 3 colunas no desktop, igual ao feed da Home -->
       <div class="container py-5">
         <!-- Tabs para Mobile -->
         <div class="mobile-tabs-container d-lg-none d-flex mb-4">
@@ -148,6 +148,13 @@ function getRoleBadge(role) {
           </button>
           <button 
             class="mobile-tab-btn" 
+            :class="{ active: activeMobileTab === 'members' }" 
+            @click="activeMobileTab = 'members'"
+          >
+            <i class="bi bi-people-fill me-2"></i>Membros
+          </button>
+          <button 
+            class="mobile-tab-btn" 
             :class="{ active: activeMobileTab === 'about' }" 
             @click="activeMobileTab = 'about'"
           >
@@ -156,8 +163,8 @@ function getRoleBadge(role) {
         </div>
 
         <div class="row g-4">
-          <!-- Coluna Esquerda: Informações + Status do Clã (Visível no desktop ou aba Sobre no celular) -->
-          <div class="col-lg-4 col-12" :class="{ 'd-none d-lg-block': activeMobileTab !== 'about' }">
+          <!-- Coluna Esquerda: Informações + Status do Clã (Visível no desktop ou aba 'Sobre' no celular) -->
+          <div class="col-lg-3 col-12" :class="{ 'd-none d-lg-block': activeMobileTab !== 'about' }">
             <!-- Bloco Info Clã -->
             <div class="glass-card overflow-hidden mb-4">
               <!-- Capa em miniatura -->
@@ -228,35 +235,10 @@ function getRoleBadge(role) {
                 <p class="text-muted small italic text-start">O poder deste clã reside na união dos seus membros e na pureza dos seus sentimentos compartilhados.</p>
               </div>
             </div>
-
-            <!-- Integrantes (Exibido na aba 'Sobre' no celular) -->
-            <div class="glass-card p-4 mt-4 d-lg-none">
-              <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="fw-bold text-white mb-0"><i class="bi bi-people-fill me-2 text-primary"></i>Integrantes</h5>
-                <span class="text-muted small">{{ members.length }} guerreiros</span>
-              </div>
-              
-              <div class="member-grid">
-                <div v-for="member in members" :key="member.user_id" class="member-card-premium">
-                  <div class="d-flex align-items-center gap-3">
-                    <img :src="avatar_url(member.first_name + (member.last_name ? ' ' + member.last_name : ''))" class="member-avatar" alt="Avatar">
-                    <div class="flex-grow-1 text-start">
-                      <h6 class="mb-0 text-white fw-bold">{{ member.first_name }} {{ member.last_name }}</h6>
-                      <span class="role-badge" :class="getRoleBadge(member.role).class">
-                        {{ getRoleBadge(member.role).label }}
-                      </span>
-                    </div>
-                    <router-link :to="`/user/${member.user_id}`" class="btn-view-member">
-                      <i class="bi bi-arrow-right"></i>
-                    </router-link>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
 
-          <!-- Coluna Direita: Mural + Feed + Integrantes (Desktop) (Visível no desktop ou aba Mural no celular) -->
-          <div class="col-lg-8 col-12" :class="{ 'd-none d-lg-block': activeMobileTab !== 'feed' }">
+          <!-- Coluna Central: Mural + Feed (Visível no desktop ou aba 'Mural' no celular) -->
+          <div class="col-lg-6 col-12" :class="{ 'd-none d-lg-block': activeMobileTab !== 'feed' }">
             <!-- Posting Area (Only for members) -->
             <div v-if="viewerRole" class="glass-card p-4 mb-4 shadow animate__animated animate__fadeIn">
                <h6 class="text-white-50 mb-3 small fw-bold text-start">MURAL DO CLÃ</h6>
@@ -290,9 +272,11 @@ function getRoleBadge(role) {
                   Ainda não há registros no mural deste clã.
                </div>
             </div>
+          </div>
 
-            <!-- Integrantes (Visível no desktop na coluna principal) -->
-            <div class="glass-card p-4 d-none d-lg-block">
+          <!-- Coluna Direita: Integrantes/Membros (Visível no desktop ou aba 'Membros' no celular) -->
+          <div class="col-lg-3 col-12" :class="{ 'd-none d-lg-block': activeMobileTab !== 'members' }">
+            <div class="glass-card p-4 sticky-top" style="top: 100px;">
               <div class="d-flex justify-content-between align-items-center mb-4">
                 <h5 class="fw-bold text-white mb-0"><i class="bi bi-people-fill me-2 text-primary"></i>Integrantes</h5>
                 <span class="text-muted small">{{ members.length }} guerreiros</span>
@@ -302,13 +286,13 @@ function getRoleBadge(role) {
                 <div v-for="member in members" :key="member.user_id" class="member-card-premium">
                   <div class="d-flex align-items-center gap-3">
                     <img :src="avatar_url(member.first_name + (member.last_name ? ' ' + member.last_name : ''))" class="member-avatar" alt="Avatar">
-                    <div class="flex-grow-1 text-start">
-                      <h6 class="mb-0 text-white fw-bold">{{ member.first_name }} {{ member.last_name }}</h6>
+                    <div class="flex-grow-1 text-start overflow-hidden">
+                      <h6 class="mb-0 text-white fw-bold text-truncate">{{ member.first_name }} {{ member.last_name }}</h6>
                       <span class="role-badge" :class="getRoleBadge(member.role).class">
                         {{ getRoleBadge(member.role).label }}
                       </span>
                     </div>
-                    <router-link :to="`/user/${member.user_id}`" class="btn-view-member">
+                    <router-link :to="`/user/${member.user_id}`" class="btn-view-member ms-auto">
                       <i class="bi bi-arrow-right"></i>
                     </router-link>
                   </div>
@@ -414,7 +398,8 @@ function getRoleBadge(role) {
 .badge-member-label { background: rgba(99, 102, 241, 0.1); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); padding: 12px 24px; border-radius: 16px; font-weight: 700; }
 
 /* Member List */
-.member-grid { display: grid; gap: 1rem; }
+.member-grid { display: grid; gap: 1rem; max-height: 450px; overflow-y: auto; scrollbar-width: none; }
+.member-grid::-webkit-scrollbar { display: none; }
 .member-card-premium { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 12px 20px; transition: all 0.3s; }
 .member-card-premium:hover { background: rgba(255, 255, 255, 0.06); transform: translateX(5px); }
 .member-avatar { width: 50px; height: 50px; border-radius: 14px; object-fit: cover; }

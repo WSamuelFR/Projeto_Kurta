@@ -16,11 +16,14 @@ function performSearch() {
 }
 
 onMounted(() => {
-  notifStore.fetchNotifications()
-  // Polling simples a cada 30 segundos para novas notificações
-  setInterval(() => {
+  const token = localStorage.getItem('fellit_token')
+  if (token) {
     notifStore.fetchNotifications()
-  }, 30000)
+    // Polling simples a cada 30 segundos para novas notificações
+    setInterval(() => {
+      notifStore.fetchNotifications()
+    }, 30000)
+  }
 })
 
 async function handleAction(notif, action) {

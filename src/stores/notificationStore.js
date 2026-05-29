@@ -13,6 +13,9 @@ export const useNotificationStore = defineStore('notifications', {
   
   actions: {
     async fetchNotifications() {
+      const token = localStorage.getItem('fellit_token')
+      if (!token) return
+
       try {
         const user = JSON.parse(localStorage.getItem('fellit_user') || '{}')
         const res = await axios.get('/api/social/notifications', {

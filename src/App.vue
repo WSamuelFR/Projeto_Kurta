@@ -24,6 +24,7 @@ body {
   padding: 0;
   background-color: #050810;
   color: white;
+  padding-top: 75px;
 }
 
 @media (max-width: 992px) {

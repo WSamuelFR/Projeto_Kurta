@@ -167,16 +167,10 @@ function getRoleBadge(role) {
           <!-- Coluna Esquerda: Informações + Status do Clã (Visível no desktop ou aba 'Sobre' no celular) -->
           <div class="col-lg-3 col-12" :class="{ 'd-none d-lg-block': activeMobileTab !== 'about' }">
             <!-- Bloco Info Clã -->
-            <div class="glass-card overflow-hidden mb-4">
-              <!-- Capa em miniatura -->
-              <div class="mini-cover">
-                <img src="https://images.unsplash.com/photo-1533107862482-0e6974b06ec4?q=80&w=1974" alt="Banner" class="mini-cover-img">
-                <div class="mini-cover-mask"></div>
-              </div>
-
+            <div class="glass-card mb-4">
               <!-- Conteúdo da Info -->
-              <div class="p-4 pt-0 text-center position-relative">
-                <div class="clan-logo-wrapper shadow-lg mx-auto">
+              <div class="p-4 text-center">
+                <div class="clan-logo-wrapper shadow-lg mx-auto mb-3">
                   <img :src="clan_pic_url(clan.name_clan)" class="clan-logo-img" alt="Logo">
                 </div>
 
@@ -332,37 +326,14 @@ function getRoleBadge(role) {
 .spinner-premium { width: 50px; height: 50px; border: 3px solid rgba(99, 102, 241, 0.1); border-top-color: #6366f1; border-radius: 50%; animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Mini Cover inside Left Card */
-.mini-cover {
-  height: 150px;
-  position: relative;
-  overflow: hidden;
-}
-
-.mini-cover-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: brightness(0.6);
-}
-
-.mini-cover-mask {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(to bottom, transparent, rgba(15, 23, 42, 0.95));
-}
-
-/* Clan Logo overlay mini-cover */
+/* Clan Logo Wrapper */
 .clan-logo-wrapper {
   width: 120px;
   height: 120px;
   border-radius: 30px;
   overflow: hidden;
-  border: 4px solid #050810;
-  margin-top: -60px;
+  border: 4px solid rgba(255, 255, 255, 0.05);
+  margin: 0 auto;
   z-index: 10;
   position: relative;
 }

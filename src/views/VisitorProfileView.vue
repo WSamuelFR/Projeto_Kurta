@@ -105,9 +105,7 @@ function clan_pic_url(name) {
   return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name || 'Clan')}&backgroundColor=1e293b,334155,0f172a`
 }
 
-function wallpaper_url(path) {
-  return path ? `/${path}` : 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2070'
-}
+
 </script>
 
 <template>
@@ -117,13 +115,8 @@ function wallpaper_url(path) {
     </div>
 
     <div v-else-if="user" class="profile-content animate__animated animate__fadeIn">
-      <!-- Header Area -->
-      <div class="profile-header">
-        <div class="wallpaper-area">
-          <img :src="wallpaper_url(user.wallpaper_pic)" alt="Cover" class="wallpaper-img">
-          <div class="wallpaper-mask"></div>
-        </div>
-        
+      <!-- Header Area: Avatar + Meta -->
+      <div class="profile-header py-5 border-bottom border-white-5">
         <div class="container header-main">
           <div class="avatar-container">
             <img :src="avatar_url(user.first_name + (user.last_name ? ' ' + user.last_name : ''))" alt="Avatar" class="avatar-img shadow-lg">
@@ -241,12 +234,9 @@ function wallpaper_url(path) {
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* Header */
-.profile-header { position: relative; }
-.wallpaper-area { height: 320px; position: relative; overflow: hidden; }
-.wallpaper-img { width: 100%; height: 100%; object-fit: cover; }
-.wallpaper-mask { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, transparent, #050810); }
+.profile-header { position: relative; background: rgba(15, 23, 42, 0.4); }
 
-.header-main { margin-top: -80px; position: relative; z-index: 5; }
+.header-main { position: relative; z-index: 5; }
 .avatar-container { width: 160px; height: 160px; margin-bottom: 1.5rem; }
 .avatar-img { width: 160px; height: 160px; border-radius: 40px; border: 4px solid #050810; object-fit: cover; }
 
